@@ -40,7 +40,6 @@ export class TripsService {
     });
   }
 
-  // THIS IS THE FIX: Send both REQUESTED trips AND trips this rider is actively driving
   async getPendingTrips(riderId: string) {
     return this.prisma.trip.findMany({
       where: {
@@ -67,6 +66,18 @@ export class TripsService {
     return this.prisma.trip.update({
       where: { id: tripId },
       data: { status: status as any },
+    });
+  }
+
+  // ADDED FOR ADMIN DASHBOARD
+  async getAllTripsForAdmin() {
+    return this.prisma.trip.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 10, // Get the 10 most recent trips
+      include: {
+        customer: { select: { email: true } },
+        rider: { select: { email: true } }
+      }
     });
   }
 }

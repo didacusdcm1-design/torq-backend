@@ -39,4 +39,10 @@ export class TripsController {
   updateStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.tripsService.updateStatus(id, status);
   }
+
+  // ADDED FOR ADMIN DASHBOARD
+  @Get('admin/all')
+  async getAllTripsForAdmin() {
+    return this.tripsService.getAllTripsForAdmin();
+  }
 }
