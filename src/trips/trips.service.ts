@@ -1,9 +1,13 @@
 ﻿import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { EventsGateway } from '../events/events.gateway';
 
 @Injectable()
 export class TripsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private eventsGateway: EventsGateway
+  ) {}
 
   calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
     const R = 6371;
@@ -23,14 +27,19 @@ export class TripsService {
     const distance = this.calculateDistance(pickupLat, pickupLng, dropoffLat, dropoffLng);
     const estimatedFare = 50 + (distance * 20);
 
-    return await this.prisma.trip.create({
+    const trip = await this.prisma.trip.create({
       data: {
         pickupLat, pickupLng, dropoffLat, dropoffLng,
         estimatedFare: parseFloat(estimatedFare.toFixed(2)),
         status: 'REQUESTED' as any, 
         customer: { connect: { id: userId } }
       },
+      include: { customer: { select: { email: true } } }
     });
+
+    // Emit real-time event to Riders
+    this.eventsGateway.emitNewTrip(trip);
+    return trip;
   }
 
   async getUserTrips(userId: string) {
@@ -45,10 +54,7 @@ export class TripsService {
       where: {
         OR: [
           { status: 'REQUESTED' as any },
-          { 
-            riderId: riderId, 
-            status: { in: ['ACCEPTED', 'ARRIVED', 'IN_PROGRESS'] as any[] } 
-          }
+          { riderId: riderId, status: { in: ['ACCEPTED', 'ARRIVED', 'IN_PROGRESS'] as any[] } }
         ]
       },
       orderBy: { createdAt: 'desc' },
@@ -56,28 +62,39 @@ export class TripsService {
   }
 
   async acceptTrip(tripId: string, riderId: string) {
-    return this.prisma.trip.update({
+    const trip = await this.prisma.trip.update({
       where: { id: tripId },
       data: { status: 'ACCEPTED' as any, riderId: riderId },
     });
+    this.eventsGateway.emitTripUpdate(trip);
+    return trip;
   }
 
   async updateStatus(tripId: string, status: string) {
-    return this.prisma.trip.update({
+    const trip = await this.prisma.trip.update({
       where: { id: tripId },
       data: { status: status as any },
     });
+    this.eventsGateway.emitTripUpdate(trip);
+    return trip;
   }
 
-  // ADDED FOR ADMIN DASHBOARD
   async getAllTripsForAdmin() {
     return this.prisma.trip.findMany({
       orderBy: { createdAt: 'desc' },
-      take: 10, // Get the 10 most recent trips
+      take: 10,
       include: {
         customer: { select: { email: true } },
         rider: { select: { email: true } }
       }
+    });
+  }
+
+  // NEW: Get all users for admin
+  async getAllUsersForAdmin() {
+    return this.prisma.user.findMany({
+      select: { id: true, email: true, phone: true, role: true, createdAt: true },
+      orderBy: { createdAt: 'desc' }
     });
   }
 }

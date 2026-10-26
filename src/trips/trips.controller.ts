@@ -40,9 +40,13 @@ export class TripsController {
     return this.tripsService.updateStatus(id, status);
   }
 
-  // ADDED FOR ADMIN DASHBOARD
   @Get('admin/all')
   async getAllTripsForAdmin() {
     return this.tripsService.getAllTripsForAdmin();
+  }
+
+  @Get('admin/users')
+  async getAllUsersForAdmin() {
+    return this.tripsService.getAllUsersForAdmin();
   }
 }
