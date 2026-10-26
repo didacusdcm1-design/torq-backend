@@ -40,7 +40,7 @@ export class TripsService {
     });
   }
 
-  // UPDATED: Get requested trips AND trips currently assigned to this rider
+  // THIS IS THE FIX: Send both REQUESTED trips AND trips this rider is actively driving
   async getPendingTrips(riderId: string) {
     return this.prisma.trip.findMany({
       where: {
