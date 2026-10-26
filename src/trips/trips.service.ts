@@ -37,7 +37,6 @@ export class TripsService {
       include: { customer: { select: { email: true } } }
     });
 
-    // Emit real-time event to Riders
     this.eventsGateway.emitNewTrip(trip);
     return trip;
   }
@@ -61,21 +60,38 @@ export class TripsService {
     });
   }
 
-    async acceptTrip(tripId: string, riderId: string) {
-    return this.prisma.trip.update({
+  async acceptTrip(tripId: string, riderId: string) {
+    const trip = await this.prisma.trip.update({
       where: { id: tripId },
       data: { 
         status: 'ACCEPTED' as any, 
-        rider: { connect: { id: riderId } } // <--- The critical fix
+        rider: { connect: { id: riderId } } 
       },
     });
-  },
+    this.eventsGateway.emitTripUpdate(trip);
+    return trip;
+  }
+
+  async updateStatus(tripId: string, status: string) {
+    const trip = await this.prisma.trip.update({
+      where: { id: tripId },
+      data: { status: status as any },
+    });
+    this.eventsGateway.emitTripUpdate(trip);
+    return trip;
+  }
+
+  async getAllTripsForAdmin() {
+    return this.prisma.trip.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+      include: {
+        customer: { select: { email: true } },
         rider: { select: { email: true } }
       }
     });
   }
 
-  // NEW: Get all users for admin
   async getAllUsersForAdmin() {
     return this.prisma.user.findMany({
       select: { id: true, email: true, phone: true, role: true, createdAt: true },
@@ -90,4 +106,3 @@ export class TripsService {
     });
   }
 }
-
