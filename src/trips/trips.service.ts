@@ -61,30 +61,15 @@ export class TripsService {
     });
   }
 
-  async acceptTrip(tripId: string, riderId: string) {
-    const trip = await this.prisma.trip.update({
+    async acceptTrip(tripId: string, riderId: string) {
+    return this.prisma.trip.update({
       where: { id: tripId },
-      data: { status: 'ACCEPTED' as any, riderId: riderId },
+      data: { 
+        status: 'ACCEPTED' as any, 
+        rider: { connect: { id: riderId } } // <--- The critical fix
+      },
     });
-    this.eventsGateway.emitTripUpdate(trip);
-    return trip;
-  }
-
-  async updateStatus(tripId: string, status: string) {
-    const trip = await this.prisma.trip.update({
-      where: { id: tripId },
-      data: { status: status as any },
-    });
-    this.eventsGateway.emitTripUpdate(trip);
-    return trip;
-  }
-
-  async getAllTripsForAdmin() {
-    return this.prisma.trip.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 10,
-      include: {
-        customer: { select: { email: true } },
+  },
         rider: { select: { email: true } }
       }
     });
@@ -105,3 +90,4 @@ export class TripsService {
     });
   }
 }
+
