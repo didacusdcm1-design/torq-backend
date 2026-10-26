@@ -5,22 +5,6 @@
     "author":  "",
     "private":  true,
     "license":  "UNLICENSED",
-    "scripts":  {
-                    "deploy":  "nest deploy",
-                    "format":  "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-                    "start":  "nest start",
-                    "start:dev":  "nest start --watch",
-                    "start:debug":  "nest start --debug --watch",
-                    "lint":  "oxlint --type-aware src/ test/",
-                    "test":  "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
-                    "test:watch":  "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --watch",
-                    "test:cov":  "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage",
-                    "test:debug":  "node --inspect-brk --experimental-vm-modules -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-                    "test:e2e":  "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./test/jest-e2e.json",
-                    "postinstall":  "prisma skills sync || exit 0",
-                    "build":  "nest build",
-                    "start:prod":  "npx prisma generate \u0026\u0026 node dist/main"
-                },
     "dependencies":  {
                          "@nestjs/common":  "^12.0.1",
                          "@nestjs/config":  "^12.0.1",
@@ -39,7 +23,10 @@
                          "@prisma/adapter-pg":  "^7.0.0",
                          "dotenv":  "^16.3.1",
                          "pg":  "^8.11.3",
-                         "@prisma/config":  "^7.0.0"
+                         "@prisma/config":  "^7.0.0",
+                         "@nestjs/websockets":  "^11.0.0",
+                         "@nestjs/platform-socket.io":  "^11.0.0",
+                         "socket.io":  "^4.7.2"
                      },
     "devDependencies":  {
                             "@nestjs/cli":  "^12.0.0",
@@ -67,5 +54,22 @@
                         },
     "engines":  {
                     "node":  "\u003e=18.0.0"
+                },
+    "scripts":  {
+                    "deploy":  "nest deploy",
+                    "format":  "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+                    "start":  "nest start",
+                    "start:dev":  "nest start --watch",
+                    "start:debug":  "nest start --debug --watch",
+                    "lint":  "oxlint --type-aware src/ test/",
+                    "test":  "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
+                    "test:watch":  "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --watch",
+                    "test:cov":  "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage",
+                    "test:debug":  "node --inspect-brk --experimental-vm-modules -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+                    "test:e2e":  "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./test/jest-e2e.json",
+                    "postinstall":  "prisma skills sync || exit 0",
+                    "build":  "nest build",
+                    "start:prod":  "npx prisma generate \u0026\u0026 node dist/main",
+                    "prepare":  ""
                 }
 }
