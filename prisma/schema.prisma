@@ -15,8 +15,8 @@ model User {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   riderProfile  RiderProfile?
-  customerTrips Trip[] @relation("TripCustomer")
-  riderTrips    Trip[] @relation("TripRider")
+  customerTrips Trip[]        @relation("TripCustomer")
+  riderTrips    Trip[]        @relation("TripRider")
 }
 
 model Trip {
@@ -36,10 +36,14 @@ model Trip {
 }
 
 model RiderProfile {
-  id        String @id @default(uuid())
-  userId    String @unique
-  user      User   @relation(fields: [userId], references: [id])
-  vehicle   String
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id])
+  fullName          String?
+  motorcycleReg     String?
+  emergencyContact  String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 enum Role {

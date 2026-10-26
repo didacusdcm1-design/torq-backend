@@ -82,4 +82,21 @@ export class TripsService {
   async updateUserRole(userId: string, role: string) {
     return this.prisma.user.update({ where: { id: userId }, data: { role: role as any } });
   }
+
+  async updateRiderProfile(userId: string, data: any) {
+    return this.prisma.riderProfile.upsert({
+      where: { userId: userId },
+      update: {
+        fullName: data.fullName,
+        motorcycleReg: data.motorcycleReg,
+        emergencyContact: data.emergencyContact,
+      },
+      create: {
+        userId: userId,
+        fullName: data.fullName,
+        motorcycleReg: data.motorcycleReg,
+        emergencyContact: data.emergencyContact,
+      },
+    });
+  }
 }
