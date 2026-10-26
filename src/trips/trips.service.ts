@@ -97,4 +97,11 @@ export class TripsService {
       orderBy: { createdAt: 'desc' }
     });
   }
+
+  async updateUserRole(userId: string, role: string) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { role: role as any },
+    });
+  }
 }

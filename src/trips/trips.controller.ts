@@ -49,4 +49,9 @@ export class TripsController {
   async getAllUsersForAdmin() {
     return this.tripsService.getAllUsersForAdmin();
   }
+
+  @Patch('admin/users/:id/role')
+  async updateUserRole(@Param('id') id: string, @Body('role') role: string) {
+    return this.tripsService.updateUserRole(id, role);
+  }
 }

@@ -7,23 +7,13 @@ import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private prisma: PrismaService,
-    private jwtService: JwtService,
-  ) {}
+  constructor(private prisma: PrismaService, private jwtService: JwtService) {}
 
   async register(dto: RegisterDto) {
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email: dto.email },
-    });
-
-    if (existingUser) {
-      throw new ConflictException('User already exists');
-    }
+    const existingUser = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    if (existingUser) throw new ConflictException('User already exists');
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
-
-    // Generate a dummy phone number since the DB requires it
     const dummyPhone = dto.email.split('@')[0] + Date.now().toString().slice(-4);
 
     const user = await this.prisma.user.create({
@@ -31,6 +21,7 @@ export class AuthService {
         email: dto.email,
         password: hashedPassword,
         phone: dummyPhone, 
+        role: (dto as any).role || 'CUSTOMER', // Default to customer, but allow override for setup
       },
     });
 
@@ -38,23 +29,13 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    const user = await this.prisma.user.findUnique({
-      where: { email: dto.email },
-    });
-
-    if (!user || !user.password) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    if (!user || !user.password) throw new UnauthorizedException('Invalid credentials');
 
     const isPasswordValid = await bcrypt.compare(dto.password, user.password);
-
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    if (!isPasswordValid) throw new UnauthorizedException('Invalid credentials');
 
     const payload = { sub: user.id, email: user.email, role: user.role };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+    return { access_token: this.jwtService.sign(payload) };
   }
 }
