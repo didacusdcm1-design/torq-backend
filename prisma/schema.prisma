@@ -1,4 +1,4 @@
-﻿generator client {
+generator client {
   provider = "prisma-client-js"
 }
 
@@ -15,7 +15,6 @@ model User {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   riderProfile  RiderProfile?
-
   customerTrips Trip[] @relation("TripCustomer")
   riderTrips    Trip[] @relation("TripRider")
 }
@@ -30,12 +29,10 @@ model Trip {
   status        TripStatus  @default(REQUESTED)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
-
-  customerId String
-  customer   User   @relation("TripCustomer", fields: [customerId], references: [id])
-
-  riderId    String?
-  rider      User?   @relation("TripRider", fields: [riderId], references: [id])
+  customerId    String
+  customer      User        @relation("TripCustomer", fields: [customerId], references: [id])
+  riderId       String?
+  rider         User?       @relation("TripRider", fields: [riderId], references: [id])
 }
 
 model RiderProfile {

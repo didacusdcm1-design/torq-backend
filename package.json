@@ -19,7 +19,7 @@
                     "test:e2e":  "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./test/jest-e2e.json",
                     "postinstall":  "prisma skills sync || exit 0",
                     "build":  "nest build",
-                    "start:prod":  "node dist/main"
+                    "start:prod":  "npx prisma generate \u0026\u0026 node dist/main"
                 },
     "dependencies":  {
                          "@nestjs/common":  "^12.0.1",
