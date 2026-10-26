@@ -4,6 +4,46 @@
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String        @id @default(uuid())
+  phone         String?       @unique
+  email         String?       @unique
+  password      String?
+  role          Role          @default(CUSTOMER)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  riderProfile  RiderProfile?
+
+  customerTrips Trip[] @relation("TripCustomer")
+  riderTrips    Trip[] @relation("TripRider")
+}
+
+model Trip {
+  id            String      @id @default(uuid())
+  pickupLat     Float
+  pickupLng     Float
+  dropoffLat    Float
+  dropoffLng    Float
+  estimatedFare Float
+  status        TripStatus  @default(REQUESTED)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  customerId String
+  customer   User   @relation("TripCustomer", fields: [customerId], references: [id])
+
+  riderId    String?
+  rider      User?   @relation("TripRider", fields: [riderId], references: [id])
+}
+
+model RiderProfile {
+  id        String @id @default(uuid())
+  userId    String @unique
+  user      User   @relation(fields: [userId], references: [id])
+  vehicle   String
 }
 
 enum Role {
@@ -18,62 +58,4 @@ enum TripStatus {
   ARRIVED
   IN_PROGRESS
   COMPLETED
-  CANCELLED
 }
-
-model User {
-  id        String   @id @default(uuid())
-  phone    String?  @unique
-  email     String?  @unique
-  password  String?
-  role      Role     @default(CUSTOMER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  riderProfile RiderProfile?
-  
-  // Relations to trips
-  tripsAsCustomer Trip[] @relation("CustomerTrips")
-  tripsAsRider    Trip[] @relation("RiderTrips")
-
-  @@map("users")
-}
-
-model RiderProfile {
-  id             String  @id @default(uuid())
-  userId         String  @unique
-  firstName      String
-  lastName       String
-  isApproved     Boolean @default(false)
-  isOnline       Boolean @default(false)
-  motorcycleMake String?
-  motorcycleReg  String?
-
-  user User @relation(fields: [userId], references: [id])
-
-  @@map("rider_profiles")
-}
-
-model Trip {
-  id              String     @id @default(uuid())
-  customerId      String
-  riderId         String?
-  status          TripStatus @default(REQUESTED)
-  pickupLat       Float
-  pickupLng       Float
-  dropoffLat      Float
-  dropoffLng      Float
-  estimatedFare   Float
-  actualFare      Float?
-  commission      Float?
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
-
-  // Relations
-  customer User  @relation("CustomerTrips", fields: [customerId], references: [id])
-  rider    User? @relation("RiderTrips", fields: [riderId], references: [id])
-
-  @@map("trips")
-}
-
-
