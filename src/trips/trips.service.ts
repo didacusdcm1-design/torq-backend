@@ -9,21 +9,44 @@ export class TripsService {
     private eventsGateway: EventsGateway
   ) {}
 
+  calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; 
+  }
+
   async createTrip(data: any, userId: string) {
+    const pickupLat = Number(data.pickupLat);
+    const pickupLng = Number(data.pickupLng);
+    const dropoffLat = Number(data.dropoffLat);
+    const dropoffLng = Number(data.dropoffLng);
+    const distance = this.calculateDistance(pickupLat, pickupLng, dropoffLat, dropoffLng);
+    const estimatedFare = 50 + (distance * 20);
+
     const trip = await this.prisma.trip.create({
       data: {
-        pickupLat: Number(data.pickupLat),
-        pickupLng: Number(data.pickupLng),
-        dropoffLat: Number(data.dropoffLat),
-        dropoffLng: Number(data.dropoffLng),
-        estimatedFare: 150,
+        pickupLat, pickupLng, dropoffLat, dropoffLng,
+        estimatedFare: parseFloat(estimatedFare.toFixed(2)),
         status: 'REQUESTED' as any, 
         customer: { connect: { id: userId } }
       },
       include: { customer: { select: { email: true } } }
     });
+
     this.eventsGateway.emitNewTrip(trip);
     return trip;
+  }
+
+  async getUserTrips(userId: string) {
+    return this.prisma.trip.findMany({
+      where: { customerId: userId },
+      orderBy: { createdAt: 'desc' },
+      include: { rider: { select: { email: true } } }
+    });
   }
 
   async getPendingTrips(riderId: string) {
@@ -35,17 +58,19 @@ export class TripsService {
         ]
       },
       orderBy: { createdAt: 'desc' },
+      include: { customer: { select: { email: true } } }
     });
   }
 
   async acceptTrip(tripId: string, riderId: string) {
-    // THIS IS THE CRITICAL FIX: Linking the rider to the trip
+    // Connects the Rider to the trip properly
     const trip = await this.prisma.trip.update({
       where: { id: tripId },
       data: { 
         status: 'ACCEPTED' as any, 
-        rider: { connect: { id: riderId } } // <-- Connects the Rider
+        rider: { connect: { id: riderId } } 
       },
+      include: { customer: { select: { email: true } }, rider: { select: { email: true } } }
     });
     this.eventsGateway.emitTripUpdate(trip);
     return trip;
@@ -55,13 +80,10 @@ export class TripsService {
     const trip = await this.prisma.trip.update({
       where: { id: tripId },
       data: { status: status as any },
+      include: { customer: { select: { email: true } }, rider: { select: { email: true } } }
     });
     this.eventsGateway.emitTripUpdate(trip);
     return trip;
-  }
-
-  async getUserTrips(userId: string) {
-    return this.prisma.trip.findMany({ where: { customerId: userId }, orderBy: { createdAt: 'desc' } });
   }
 
   async getAllTripsForAdmin() {
@@ -86,17 +108,8 @@ export class TripsService {
   async updateRiderProfile(userId: string, data: any) {
     return this.prisma.riderProfile.upsert({
       where: { userId: userId },
-      update: {
-        fullName: data.fullName,
-        motorcycleReg: data.motorcycleReg,
-        emergencyContact: data.emergencyContact,
-      },
-      create: {
-        userId: userId,
-        fullName: data.fullName,
-        motorcycleReg: data.motorcycleReg,
-        emergencyContact: data.emergencyContact,
-      },
+      update: { fullName: data.fullName, motorcycleReg: data.motorcycleReg, emergencyContact: data.emergencyContact },
+      create: { userId: userId, fullName: data.fullName, motorcycleReg: data.motorcycleReg, emergencyContact: data.emergencyContact },
     });
   }
 }
