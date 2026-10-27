@@ -104,4 +104,18 @@ export class TripsController {
     const riderId = req.user.userId || req.user.id || req.user.sub;
     return this.tripsService.getRiderHistory(riderId);
   }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('rider/notifications')
+  async getNotifications(@Req() req: any) {
+    const userId = req.user.userId || req.user.id || req.user.sub;
+    return this.tripsService.getNotifications(userId);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('rider/payout')
+  async requestPayout(@Req() req: any) {
+    const userId = req.user.userId || req.user.id || req.user.sub;
+    return this.tripsService.requestPayout(userId);
+  }
 }

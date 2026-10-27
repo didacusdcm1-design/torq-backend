@@ -90,11 +90,36 @@ export class TripsService {
     return trip;
   }
 
-  async updateStatus(tripId: string, status: string) {
+    async updateStatus(tripId: string, status: string) {
     const trip = await this.prisma.trip.update({
       where: { id: tripId },
       data: { status: status as any },
       include: { customer: { select: { email: true } }, rider: { select: { email: true } } }
+    });
+
+    // PAY RIDER ON COMPLETION
+    if (status === 'COMPLETED' && trip.riderId) {
+      const wallet = await this.prisma.wallet.findUnique({ where: { userId: trip.riderId } });
+      if (wallet) {
+        await this.prisma.wallet.update({
+          where: { id: wallet.id },
+          data: { balance: wallet.balance + trip.estimatedFare },
+        });
+
+        // Create Notification
+        await this.prisma.notification.create({
+          data: {
+            userId: trip.riderId,
+            title: 'Trip Completed',
+            message: `You earned KSh ${trip.estimatedFare} from trip #${trip.id.substring(0, 8)}.`
+          }
+        });
+      }
+    }
+
+    this.eventsGateway.emitTripUpdate(trip);
+    return trip;
+  }, rider: { select: { email: true } } }
     });
 
     // PAY RIDER ON COMPLETION
@@ -185,6 +210,27 @@ export class TripsService {
       },
       orderBy: { createdAt: 'desc' },
       include: { customer: { select: { email: true } } }
+    });
+  }
+  async getNotifications(userId: string) {
+    return this.prisma.notification.findMany({
+      where: { userId: userId },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  async requestPayout(userId: string) {
+    const wallet = await this.prisma.wallet.findUnique({ where: { userId: userId } });
+    if (!wallet || wallet.balance <= 0) throw new ForbiddenException('No balance to pay out');
+
+    // In a real app, this would trigger an M-Pesa STK push. 
+    // For now, we move the balance to pending.
+    return this.prisma.wallet.update({
+      where: { id: wallet.id },
+      data: { 
+        balance: 0, 
+        pendingEarnings: wallet.pendingEarnings + wallet.balance 
+      }
     });
   }
 }

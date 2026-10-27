@@ -19,6 +19,7 @@ model User {
   customerTrips Trip[]        @relation("TripCustomer")
   riderTrips    Trip[]        @relation("TripRider")
   wallet        Wallet?
+  notifications Notification[]
 }
 
 model Trip {
@@ -66,6 +67,16 @@ model Wallet {
   user            User     @relation(fields: [userId], references: [id])
   balance         Float    @default(0)
   pendingEarnings Float    @default(0)
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
 model PricingRule {
