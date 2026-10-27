@@ -25,7 +25,14 @@ export class TripsService {
     const dropoffLat = Number(data.dropoffLat);
     const dropoffLng = Number(data.dropoffLng);
     const distance = this.calculateDistance(pickupLat, pickupLng, dropoffLat, dropoffLng);
-    const estimatedFare = 50 + (distance * 20);
+    
+    // Fetch pricing rules from the database
+    let pricing = await this.prisma.pricingRule.findFirst();
+    if (!pricing) {
+      pricing = await this.prisma.pricingRule.create({ data: {} });
+    }
+
+    const estimatedFare = pricing.baseFare + (distance * pricing.perKmRate);
 
     const trip = await this.prisma.trip.create({
       data: {

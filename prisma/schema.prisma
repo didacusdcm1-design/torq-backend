@@ -1,4 +1,4 @@
-generator client {
+﻿generator client {
   provider = "prisma-client-js"
 }
 
@@ -58,4 +58,12 @@ enum TripStatus {
   ARRIVED
   IN_PROGRESS
   COMPLETED
+}
+
+model PricingRule {
+  id            String   @id @default(uuid())
+  baseFare      Float    @default(50)
+  perKmRate     Float    @default(20)
+  commission    Float    @default(0.15) // 15%
+  updatedAt     DateTime @updatedAt
 }
