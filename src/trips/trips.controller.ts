@@ -97,4 +97,11 @@ export class TripsController {
   async rejectRider(@Param('id') id: string, @Body('reason') reason: string) {
     return this.tripsService.rejectRider(id, reason);
   }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('rider/history')
+  async getRiderHistory(@Req() req: any) {
+    const riderId = req.user.userId || req.user.id || req.user.sub;
+    return this.tripsService.getRiderHistory(riderId);
+  }
 }

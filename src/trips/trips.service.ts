@@ -177,4 +177,14 @@ export class TripsService {
       data: { verificationStatus: 'REJECTED', rejectionReason: reason },
     });
   }
+  async getRiderHistory(riderId: string) {
+    return this.prisma.trip.findMany({
+      where: { 
+        riderId: riderId,
+        status: 'COMPLETED' as any 
+      },
+      orderBy: { createdAt: 'desc' },
+      include: { customer: { select: { email: true } } }
+    });
+  }
 }
