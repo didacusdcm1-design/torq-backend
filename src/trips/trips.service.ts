@@ -69,7 +69,7 @@ export class TripsService {
   }
 
   async acceptTrip(tripId: string, riderId: string) {
-    // THE SECURITY CHECK
+    // CRITICAL: Security Check block
     const riderProfile = await this.prisma.riderProfile.findUnique({ where: { userId: riderId } });
     
     if (!riderProfile) {
