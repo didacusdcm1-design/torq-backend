@@ -91,12 +91,32 @@ export class TripsService {
     return trip;
   }
 
-    async updateStatus(tripId: string, status: string) {
+      async updateStatus(tripId: string, status: string) {
     // 1. Update the trip status
     const trip = await this.prisma.trip.update({
       where: { id: tripId },
       data: { status: status as any },
       include: { customer: { select: { email: true } }, rider: { select: { email: true } } }
+    });
+
+    // 2. If the trip is COMPLETED, pay the rider
+    if (status === 'COMPLETED' && trip.riderId) {
+      // Find the rider's wallet
+      const wallet = await this.prisma.wallet.findUnique({ where: { userId: trip.riderId } });
+      
+      if (wallet) {
+        // Add the fare to the rider's balance
+        await this.prisma.wallet.update({
+          where: { id: wallet.id },
+          data: { balance: wallet.balance + trip.estimatedFare },
+        });
+        console.log(`💰 Paid rider ${trip.rider?.email} KSh ${trip.estimatedFare}`);
+      }
+    }
+
+    this.eventsGateway.emitTripUpdate(trip);
+    return trip;
+  }, rider: { select: { email: true } } }
     });
 
     // 2. If the trip is COMPLETED, pay the rider
@@ -181,3 +201,4 @@ export class TripsService {
     });
   }
 }
+
