@@ -124,7 +124,7 @@ export class TripsService {
     return this.prisma.user.update({ where: { id: userId }, data: { role: role as any } });
   }
 
-    async updateFullProfile(userId: string, data: any) {
+  async updateFullProfile(userId: string, data: any) {
     return this.prisma.riderProfile.upsert({
       where: { userId: userId },
       update: {
@@ -160,3 +160,4 @@ export class TripsService {
       },
     });
   }
+}
