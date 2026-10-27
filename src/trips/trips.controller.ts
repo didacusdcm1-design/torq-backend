@@ -1,4 +1,4 @@
-﻿import { Controller, Post, Body, Get, UseGuards, Req, Patch, Param } from '@nestjs/common';
+﻿import { Controller, Post, Body, Get, UseGuards, Req, Patch, Param, Query } from '@nestjs/common';
 import { TripsService } from './trips.service';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -41,8 +41,8 @@ export class TripsController {
   }
 
   @Get('admin/all')
-  async getAllTripsForAdmin() {
-    return this.tripsService.getAllTripsForAdmin();
+  async getAllTripsForAdmin(@Query('search') search?: string) {
+    return this.tripsService.getAllTripsForAdmin(search);
   }
 
   @Get('admin/users')

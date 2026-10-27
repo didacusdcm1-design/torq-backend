@@ -86,11 +86,28 @@ export class TripsService {
     return trip;
   }
 
-  async getAllTripsForAdmin() {
+    async getAllTripsForAdmin(search?: string) {
+    const whereClause: any = {};
+    
+    if (search) {
+      whereClause.OR = [
+        { id: { contains: search } },
+        { customer: { email: { contains: search } } },
+        { rider: { email: { contains: search } } },
+      ];
+    }
+
     return this.prisma.trip.findMany({
+      where: whereClause,
       orderBy: { createdAt: 'desc' },
-      take: 10,
-      include: { customer: { select: { email: true } }, rider: { select: { email: true } } }
+      take: 50,
+      include: { 
+        customer: { select: { email: true } }, 
+        rider: { select: { email: true } } 
+      }
+    });
+  }
+}, rider: { select: { email: true } } }
     });
   }
 
@@ -113,3 +130,4 @@ export class TripsService {
     });
   }
 }
+
