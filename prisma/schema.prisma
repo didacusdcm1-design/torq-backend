@@ -1,4 +1,4 @@
-﻿generator client {
+generator client {
   provider = "prisma-client-js"
 }
 
@@ -17,6 +17,8 @@ model User {
   riderProfile  RiderProfile?
   customerTrips Trip[]        @relation("TripCustomer")
   riderTrips    Trip[]        @relation("TripRider")
+  wallet        Wallet?
+  auditLogs     AuditLog[]
 }
 
 model Trip {
@@ -26,6 +28,7 @@ model Trip {
   dropoffLat    Float
   dropoffLng    Float
   estimatedFare Float
+  finalFare     Float?
   status        TripStatus  @default(REQUESTED)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
@@ -42,8 +45,36 @@ model RiderProfile {
   fullName          String?
   motorcycleReg     String?
   emergencyContact  String?
+  verificationStatus String  @default("PENDING")
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+}
+
+model Wallet {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id])
+  balance         Float    @default(0)
+  pendingEarnings Float    @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  action    String
+  details   String?
+  createdAt DateTime @default(now())
+}
+
+model PricingRule {
+  id            String   @id @default(uuid())
+  baseFare      Float    @default(50)
+  perKmRate     Float    @default(20)
+  commission    Float    @default(0.15)
+  updatedAt     DateTime @updatedAt
 }
 
 enum Role {
@@ -58,12 +89,5 @@ enum TripStatus {
   ARRIVED
   IN_PROGRESS
   COMPLETED
-}
-
-model PricingRule {
-  id            String   @id @default(uuid())
-  baseFare      Float    @default(50)
-  perKmRate     Float    @default(20)
-  commission    Float    @default(0.15) // 15%
-  updatedAt     DateTime @updatedAt
+  CANCELLED
 }
