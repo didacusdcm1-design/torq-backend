@@ -26,7 +26,6 @@ export class TripsService {
     const dropoffLng = Number(data.dropoffLng);
     const distance = this.calculateDistance(pickupLat, pickupLng, dropoffLat, dropoffLng);
     
-    // Fetch pricing rules from the database
     let pricing = await this.prisma.pricingRule.findFirst();
     if (!pricing) {
       pricing = await this.prisma.pricingRule.create({ data: {} });
@@ -125,7 +124,7 @@ export class TripsService {
     return this.prisma.user.update({ where: { id: userId }, data: { role: role as any } });
   }
 
-    async updateFullProfile(userId: string, data: any) {
+  async updateFullProfile(userId: string, data: any) {
     return this.prisma.riderProfile.upsert({
       where: { userId: userId },
       update: {
@@ -137,7 +136,7 @@ export class TripsService {
         motorcycleMake: data.motorcycleMake,
         motorcycleModel: data.motorcycleModel,
         insuranceExpiry: data.insuranceExpiry,
-        verificationStatus: 'PENDING', // Reset to pending on update
+        verificationStatus: 'PENDING',
       },
       create: {
         userId: userId,
@@ -153,3 +152,4 @@ export class TripsService {
       },
     });
   }
+}
