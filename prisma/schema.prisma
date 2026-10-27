@@ -42,10 +42,23 @@ model RiderProfile {
   id                String   @id @default(uuid())
   userId            String   @unique
   user              User     @relation(fields: [userId], references: [id])
+  
+  // Personal Details
   fullName          String?
-  motorcycleReg     String?
+  dateOfBirth       String?
+  nationalIdNumber  String?
   emergencyContact  String?
-  verificationStatus String  @default("PENDING")
+  
+  // Motorcycle Details
+  motorcycleReg     String?
+  motorcycleMake    String?
+  motorcycleModel   String?
+  insuranceExpiry   String?
+  
+  // Verification Status
+  verificationStatus String  @default("PENDING") // PENDING, APPROVED, REJECTED
+  rejectionReason   String?
+  
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 }

@@ -55,10 +55,11 @@ export class TripsController {
     return this.tripsService.updateUserRole(id, role);
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Post('rider/profile')
-  async updateRiderProfile(@Body() body: any, @Req() req: any) {
+    @UseGuards(AuthGuard('jwt'))
+  @Post('rider/full-profile')
+  async updateFullProfile(@Body() body: any, @Req() req: any) {
     const userId = req.user.userId || req.user.id || req.user.sub;
-    return this.tripsService.updateRiderProfile(userId, body);
+    return this.tripsService.updateFullProfile(userId, body);
   }
 }
+
