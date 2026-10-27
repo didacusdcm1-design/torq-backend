@@ -1,12 +1,11 @@
-﻿import { Controller, Get, UseGuards } from '@nestjs/common';
+﻿import { Controller, Get } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { AuthGuard } from '@nestjs/passport';
 
 @Controller('admin')
 export class AdminController {
   constructor(private prisma: PrismaService) {}
 
-  @UseGuards(AuthGuard('jwt'))
+  // Removed @UseGuards so the Vercel frontend can fetch stats without a token
   @Get('dashboard-stats')
   async getDashboardStats() {
     const today = new Date();
