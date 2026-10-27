@@ -11,7 +11,7 @@ model User {
   phone         String?       @unique
   email         String?       @unique
   password      String?
-  otpCode       String?       // Stores the OTP generated for the rider
+  otpCode       String?
   role          Role          @default(CUSTOMER)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
@@ -42,25 +42,20 @@ model RiderProfile {
   id                String   @id @default(uuid())
   userId            String   @unique
   user              User     @relation(fields: [userId], references: [id])
-  
   fullName          String?
   dateOfBirth       String?
   nationalIdNumber  String?
   emergencyContact  String?
-  
   motorcycleReg     String?
   motorcycleMake    String?
   motorcycleModel   String?
   insuranceExpiry   String?
-  
   idDocumentUrl     String?
   licenseDocumentUrl String?
   insuranceDocumentUrl String?
   selfieUrl         String?
-  
   verificationStatus String  @default("PENDING")
   rejectionReason   String?
-  
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 }

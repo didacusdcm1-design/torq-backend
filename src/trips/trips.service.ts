@@ -171,4 +171,10 @@ export class TripsService {
       where: { userId: userId },
     });
   }
+  async rejectRider(userId: string, reason: string) {
+    return this.prisma.riderProfile.update({
+      where: { userId: userId },
+      data: { verificationStatus: 'REJECTED', rejectionReason: reason },
+    });
+  }
 }

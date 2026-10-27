@@ -92,4 +92,9 @@ export class TripsController {
     const userId = req.user.userId || req.user.id || req.user.sub;
     return this.tripsService.getWallet(userId);
   }
+
+  @Patch('admin/riders/:id/reject')
+  async rejectRider(@Param('id') id: string, @Body('reason') reason: string) {
+    return this.tripsService.rejectRider(id, reason);
+  }
 }
