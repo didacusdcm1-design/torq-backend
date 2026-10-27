@@ -6,6 +6,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { TripsModule } from './trips/trips.module';
 import { ConfigModule } from '@nestjs/config';
 import { EventsGateway } from './events/events.gateway';
+import { AdminController } from './admin/admin.controller';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { EventsGateway } from './events/events.gateway';
     AuthModule,
     TripsModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, AdminController],
   providers: [AppService, EventsGateway],
 })
 export class AppModule {}
