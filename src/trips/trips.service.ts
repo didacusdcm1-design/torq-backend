@@ -68,8 +68,8 @@ export class TripsService {
     });
   }
 
-    async acceptTrip(tripId: string, riderId: string) {
-    // Check if Rider is approved
+  async acceptTrip(tripId: string, riderId: string) {
+    // Block unapproved riders
     const riderProfile = await this.prisma.riderProfile.findUnique({ where: { userId: riderId } });
     if (!riderProfile || riderProfile.verificationStatus !== 'APPROVED') {
       throw new Error('You must complete your profile and be approved by the Admin before accepting rides.');
@@ -80,12 +80,6 @@ export class TripsService {
       data: { 
         status: 'ACCEPTED' as any, 
         rider: { connect: { id: riderId } } 
-      },
-      include: { customer: { select: { email: true } }, rider: { select: { email: true } } }
-    });
-    this.eventsGateway.emitTripUpdate(trip);
-    return trip;
-  } 
       },
       include: { customer: { select: { email: true } }, rider: { select: { email: true } } }
     });
@@ -127,8 +121,8 @@ export class TripsService {
 
   async getAllUsersForAdmin() {
     return this.prisma.user.findMany({
-      select: { id: true, email: true, phone: true, role: true, createdAt: true },
-      orderBy: { createdAt: 'desc' }
+      where: { role: 'RIDER' },
+      include: { riderProfile: true }
     });
   }
 
