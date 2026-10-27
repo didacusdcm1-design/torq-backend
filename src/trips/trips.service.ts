@@ -173,6 +173,24 @@ export class TripsService {
     });
   }
 
+  async rejectRider(userId: string, reason: string) {
+    return this.prisma.riderProfile.update({
+      where: { userId: userId },
+      data: { verificationStatus: 'REJECTED', rejectionReason: reason },
+    });
+  }
+
+  async getRiderHistory(riderId: string) {
+    return this.prisma.trip.findMany({
+      where: { 
+        riderId: riderId,
+        status: 'COMPLETED' as any 
+      },
+      orderBy: { createdAt: 'desc' },
+      include: { customer: { select: { email: true } } }
+    });
+  }
+
   async getWallet(userId: string) {
     return this.prisma.wallet.findUnique({
       where: { userId: userId },
