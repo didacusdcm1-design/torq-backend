@@ -175,4 +175,9 @@ export class TripsService {
       data: { verificationStatus: 'APPROVED' },
     });
   }
+  async getWallet(userId: string) {
+    return this.prisma.wallet.findUnique({
+      where: { userId: userId },
+    });
+  }
 }

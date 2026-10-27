@@ -85,4 +85,11 @@ export class TripsController {
     // Returns the full URL pointing to the Render backend
     return { url: `https://torq-backend.onrender.com/uploads/${file.filename}` };
   }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('rider/wallet')
+  async getWallet(@Req() req: any) {
+    const userId = req.user.userId || req.user.id || req.user.sub;
+    return this.tripsService.getWallet(userId);
+  }
 }
