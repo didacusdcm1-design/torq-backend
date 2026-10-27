@@ -61,5 +61,9 @@ export class TripsController {
     const userId = req.user.userId || req.user.id || req.user.sub;
     return this.tripsService.updateFullProfile(userId, body);
   }
-}
 
+  @Patch('admin/riders/:id/approve')
+  async approveRider(@Param('id') id: string) {
+    return this.tripsService.approveRider(id);
+  }
+}

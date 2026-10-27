@@ -1,4 +1,4 @@
-﻿import { Injectable } from '@nestjs/common';
+﻿import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { EventsGateway } from '../events/events.gateway';
 
@@ -69,10 +69,14 @@ export class TripsService {
   }
 
   async acceptTrip(tripId: string, riderId: string) {
-    // Block unapproved riders
+    // STRICT CHECK: Block if profile doesn't exist or isn't approved
     const riderProfile = await this.prisma.riderProfile.findUnique({ where: { userId: riderId } });
-    if (!riderProfile || riderProfile.verificationStatus !== 'APPROVED') {
-      throw new Error('You must complete your profile and be approved by the Admin before accepting rides.');
+    
+    if (!riderProfile) {
+      throw new ForbiddenException('You must fill out your Account profile first.');
+    }
+    if (riderProfile.verificationStatus !== 'APPROVED') {
+      throw new ForbiddenException('Your account is pending Admin approval. You cannot accept rides yet.');
     }
 
     const trip = await this.prisma.trip.update({
@@ -99,7 +103,6 @@ export class TripsService {
 
   async getAllTripsForAdmin(search?: string) {
     const whereClause: any = {};
-    
     if (search) {
       whereClause.OR = [
         { id: { contains: search } },
@@ -107,15 +110,11 @@ export class TripsService {
         { rider: { email: { contains: search } } },
       ];
     }
-
     return this.prisma.trip.findMany({
       where: whereClause,
       orderBy: { createdAt: 'desc' },
       take: 50,
-      include: { 
-        customer: { select: { email: true } }, 
-        rider: { select: { email: true } } 
-      }
+      include: { customer: { select: { email: true } }, rider: { select: { email: true } } }
     });
   }
 
@@ -164,6 +163,14 @@ export class TripsService {
         selfieUrl: data.selfieUrl,
         verificationStatus: 'PENDING',
       },
+    });
+  }
+
+  // NEW: Admin Approval Endpoint
+  async approveRider(userId: string) {
+    return this.prisma.riderProfile.update({
+      where: { userId: userId },
+      data: { verificationStatus: 'APPROVED' },
     });
   }
 }
