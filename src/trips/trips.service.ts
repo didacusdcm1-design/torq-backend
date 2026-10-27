@@ -124,7 +124,7 @@ export class TripsService {
     return this.prisma.user.update({ where: { id: userId }, data: { role: role as any } });
   }
 
-  async updateFullProfile(userId: string, data: any) {
+    async updateFullProfile(userId: string, data: any) {
     return this.prisma.riderProfile.upsert({
       where: { userId: userId },
       update: {
@@ -136,6 +136,10 @@ export class TripsService {
         motorcycleMake: data.motorcycleMake,
         motorcycleModel: data.motorcycleModel,
         insuranceExpiry: data.insuranceExpiry,
+        idDocumentUrl: data.idDocumentUrl,
+        licenseDocumentUrl: data.licenseDocumentUrl,
+        insuranceDocumentUrl: data.insuranceDocumentUrl,
+        selfieUrl: data.selfieUrl,
         verificationStatus: 'PENDING',
       },
       create: {
@@ -148,8 +152,11 @@ export class TripsService {
         motorcycleMake: data.motorcycleMake,
         motorcycleModel: data.motorcycleModel,
         insuranceExpiry: data.insuranceExpiry,
+        idDocumentUrl: data.idDocumentUrl,
+        licenseDocumentUrl: data.licenseDocumentUrl,
+        insuranceDocumentUrl: data.insuranceDocumentUrl,
+        selfieUrl: data.selfieUrl,
         verificationStatus: 'PENDING',
       },
     });
   }
-}

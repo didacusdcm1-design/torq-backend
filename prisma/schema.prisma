@@ -18,7 +18,6 @@ model User {
   customerTrips Trip[]        @relation("TripCustomer")
   riderTrips    Trip[]        @relation("TripRider")
   wallet        Wallet?
-  auditLogs     AuditLog[]
 }
 
 model Trip {
@@ -43,20 +42,23 @@ model RiderProfile {
   userId            String   @unique
   user              User     @relation(fields: [userId], references: [id])
   
-  // Personal Details
   fullName          String?
   dateOfBirth       String?
   nationalIdNumber  String?
   emergencyContact  String?
   
-  // Motorcycle Details
   motorcycleReg     String?
   motorcycleMake    String?
   motorcycleModel   String?
   insuranceExpiry   String?
   
-  // Verification Status
-  verificationStatus String  @default("PENDING") // PENDING, APPROVED, REJECTED
+  // Document Upload Fields
+  idDocumentUrl     String?
+  licenseDocumentUrl String?
+  insuranceDocumentUrl String?
+  selfieUrl         String?
+  
+  verificationStatus String  @default("PENDING")
   rejectionReason   String?
   
   createdAt         DateTime @default(now())
@@ -71,15 +73,6 @@ model Wallet {
   pendingEarnings Float    @default(0)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-}
-
-model AuditLog {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  action    String
-  details   String?
-  createdAt DateTime @default(now())
 }
 
 model PricingRule {
