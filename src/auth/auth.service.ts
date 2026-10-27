@@ -21,7 +21,9 @@ export class AuthService {
         email: dto.email,
         password: hashedPassword,
         phone: dummyPhone, 
-        role: (dto as any).role || 'CUSTOMER', // Default to customer, but allow override for setup
+        role: (dto as any).role || 'CUSTOMER',
+        // Create a wallet for every new user
+        wallet: { create: { balance: 0, pendingEarnings: 0 } }
       },
     });
 
