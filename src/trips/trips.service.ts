@@ -69,16 +69,15 @@ export class TripsService {
   }
 
   async acceptTrip(tripId: string, riderId: string) {
-    // --- THE SECURITY CHECK ---
+    // STRICT SECURITY CHECK
     const riderProfile = await this.prisma.riderProfile.findUnique({ where: { userId: riderId } });
     
     if (!riderProfile) {
-      throw new ForbiddenException('You must fill out your Account profile first.');
+      throw new ForbiddenException('You must complete your Account profile before accepting rides.');
     }
     if (riderProfile.verificationStatus !== 'APPROVED') {
       throw new ForbiddenException('Your account is pending Admin approval. You cannot accept rides yet.');
     }
-    // -------------------------
 
     const trip = await this.prisma.trip.update({
       where: { id: tripId },
@@ -134,16 +133,34 @@ export class TripsService {
     return this.prisma.riderProfile.upsert({
       where: { userId: userId },
       update: {
-        fullName: data.fullName, dateOfBirth: data.dateOfBirth, nationalIdNumber: data.nationalIdNumber, emergencyContact: data.emergencyContact,
-        motorcycleReg: data.motorcycleReg, motorcycleMake: data.motorcycleMake, motorcycleModel: data.motorcycleModel, insuranceExpiry: data.insuranceExpiry,
-        idDocumentUrl: data.idDocumentUrl, licenseDocumentUrl: data.licenseDocumentUrl, insuranceDocumentUrl: data.insuranceDocumentUrl, selfieUrl: data.selfieUrl,
+        fullName: data.fullName, 
+        dateOfBirth: data.dateOfBirth, 
+        nationalIdNumber: data.nationalIdNumber, 
+        emergencyContact: data.emergencyContact,
+        motorcycleReg: data.motorcycleReg, 
+        motorcycleMake: data.motorcycleMake, 
+        motorcycleModel: data.motorcycleModel, 
+        insuranceExpiry: data.insuranceExpiry,
+        idDocumentUrl: data.idDocumentUrl, 
+        licenseDocumentUrl: data.licenseDocumentUrl, 
+        insuranceDocumentUrl: data.insuranceDocumentUrl, 
+        selfieUrl: data.selfieUrl,
         verificationStatus: 'PENDING',
       },
       create: {
         userId: userId,
-        fullName: data.fullName, dateOfBirth: data.dateOfBirth, nationalIdNumber: data.nationalIdNumber, emergencyContact: data.emergencyContact,
-        motorcycleReg: data.motorcycleReg, motorcycleMake: data.motorcycleMake, motorcycleModel: data.motorcycleModel, insuranceExpiry: data.insuranceExpiry,
-        idDocumentUrl: data.idDocumentUrl, licenseDocumentUrl: data.licenseDocumentUrl, insuranceDocumentUrl: data.insuranceDocumentUrl, selfieUrl: data.selfieUrl,
+        fullName: data.fullName, 
+        dateOfBirth: data.dateOfBirth, 
+        nationalIdNumber: data.nationalIdNumber, 
+        emergencyContact: data.emergencyContact,
+        motorcycleReg: data.motorcycleReg, 
+        motorcycleMake: data.motorcycleMake, 
+        motorcycleModel: data.motorcycleModel, 
+        insuranceExpiry: data.insuranceExpiry,
+        idDocumentUrl: data.idDocumentUrl, 
+        licenseDocumentUrl: data.licenseDocumentUrl, 
+        insuranceDocumentUrl: data.insuranceDocumentUrl, 
+        selfieUrl: data.selfieUrl,
         verificationStatus: 'PENDING',
       },
     });
