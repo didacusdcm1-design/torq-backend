@@ -2,27 +2,26 @@
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
   constructor(private prisma: PrismaService, private jwtService: JwtService) {}
 
-  async register(dto: RegisterDto) {
+  async register(dto: any) {
     const existingUser = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (existingUser) throw new ConflictException('User already exists');
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
-    const dummyPhone = dto.email.split('@')[0] + Date.now().toString().slice(-4);
+    // Generate a random 6-digit OTP
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
 
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,
+        phone: dto.phone, 
         password: hashedPassword,
-        phone: dummyPhone, 
-        role: (dto as any).role || 'CUSTOMER',
-        // Create a wallet for every new user
+        otpCode: otpCode,
+        role: dto.role || 'CUSTOMER',
         wallet: { create: { balance: 0, pendingEarnings: 0 } }
       },
     });
@@ -30,7 +29,7 @@ export class AuthService {
     return this.login({ email: user.email!, password: dto.password });
   }
 
-  async login(dto: LoginDto) {
+  async login(dto: any) {
     const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (!user || !user.password) throw new UnauthorizedException('Invalid credentials');
 
