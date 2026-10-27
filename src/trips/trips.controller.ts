@@ -1,4 +1,7 @@
-﻿import { Controller, Post, Body, Get, UseGuards, Req, Patch, Param, Query } from '@nestjs/common';
+﻿import { Controller, Post, Body, Get, UseGuards, Req, Patch, Param, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 import { TripsService } from './trips.service';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -65,5 +68,19 @@ export class TripsController {
   @Patch('admin/riders/:id/approve')
   async approveRider(@Param('id') id: string) {
     return this.tripsService.approveRider(id);
+  }
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file', {
+    storage: diskStorage({
+      destination: './uploads',
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
+      },
+    }),
+  }))
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+    return { url: `https://torq-backend.onrender.com/uploads/${file.filename}` };
   }
 }
