@@ -70,6 +70,7 @@ export class TripsController {
     return this.tripsService.approveRider(id);
   }
 
+  // FILE UPLOAD ENDPOINT
   @Post('upload')
   @UseInterceptors(FileInterceptor('file', {
     storage: diskStorage({
@@ -81,6 +82,7 @@ export class TripsController {
     }),
   }))
   uploadFile(@UploadedFile() file: Express.Multer.File) {
+    // Returns the full URL pointing to the Render backend
     return { url: `https://torq-backend.onrender.com/uploads/${file.filename}` };
   }
 }
