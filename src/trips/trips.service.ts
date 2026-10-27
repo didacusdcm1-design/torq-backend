@@ -63,7 +63,6 @@ export class TripsService {
   }
 
   async acceptTrip(tripId: string, riderId: string) {
-    // Connects the Rider to the trip properly
     const trip = await this.prisma.trip.update({
       where: { id: tripId },
       data: { 
@@ -86,7 +85,7 @@ export class TripsService {
     return trip;
   }
 
-    async getAllTripsForAdmin(search?: string) {
+  async getAllTripsForAdmin(search?: string) {
     const whereClause: any = {};
     
     if (search) {
@@ -105,9 +104,6 @@ export class TripsService {
         customer: { select: { email: true } }, 
         rider: { select: { email: true } } 
       }
-    });
-  }
-}, rider: { select: { email: true } } }
     });
   }
 
@@ -130,4 +126,3 @@ export class TripsService {
     });
   }
 }
-
