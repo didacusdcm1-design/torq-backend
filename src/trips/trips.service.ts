@@ -69,7 +69,7 @@ export class TripsService {
   }
 
   async acceptTrip(tripId: string, riderId: string) {
-    // STRICT SECURITY CHECK
+    // THE SECURITY CHECK
     const riderProfile = await this.prisma.riderProfile.findUnique({ where: { userId: riderId } });
     
     if (!riderProfile) {
@@ -133,34 +133,16 @@ export class TripsService {
     return this.prisma.riderProfile.upsert({
       where: { userId: userId },
       update: {
-        fullName: data.fullName, 
-        dateOfBirth: data.dateOfBirth, 
-        nationalIdNumber: data.nationalIdNumber, 
-        emergencyContact: data.emergencyContact,
-        motorcycleReg: data.motorcycleReg, 
-        motorcycleMake: data.motorcycleMake, 
-        motorcycleModel: data.motorcycleModel, 
-        insuranceExpiry: data.insuranceExpiry,
-        idDocumentUrl: data.idDocumentUrl, 
-        licenseDocumentUrl: data.licenseDocumentUrl, 
-        insuranceDocumentUrl: data.insuranceDocumentUrl, 
-        selfieUrl: data.selfieUrl,
+        fullName: data.fullName, dateOfBirth: data.dateOfBirth, nationalIdNumber: data.nationalIdNumber, emergencyContact: data.emergencyContact,
+        motorcycleReg: data.motorcycleReg, motorcycleMake: data.motorcycleMake, motorcycleModel: data.motorcycleModel, insuranceExpiry: data.insuranceExpiry,
+        idDocumentUrl: data.idDocumentUrl, licenseDocumentUrl: data.licenseDocumentUrl, insuranceDocumentUrl: data.insuranceDocumentUrl, selfieUrl: data.selfieUrl,
         verificationStatus: 'PENDING',
       },
       create: {
         userId: userId,
-        fullName: data.fullName, 
-        dateOfBirth: data.dateOfBirth, 
-        nationalIdNumber: data.nationalIdNumber, 
-        emergencyContact: data.emergencyContact,
-        motorcycleReg: data.motorcycleReg, 
-        motorcycleMake: data.motorcycleMake, 
-        motorcycleModel: data.motorcycleModel, 
-        insuranceExpiry: data.insuranceExpiry,
-        idDocumentUrl: data.idDocumentUrl, 
-        licenseDocumentUrl: data.licenseDocumentUrl, 
-        insuranceDocumentUrl: data.insuranceDocumentUrl, 
-        selfieUrl: data.selfieUrl,
+        fullName: data.fullName, dateOfBirth: data.dateOfBirth, nationalIdNumber: data.nationalIdNumber, emergencyContact: data.emergencyContact,
+        motorcycleReg: data.motorcycleReg, motorcycleMake: data.motorcycleMake, motorcycleModel: data.motorcycleModel, insuranceExpiry: data.insuranceExpiry,
+        idDocumentUrl: data.idDocumentUrl, licenseDocumentUrl: data.licenseDocumentUrl, insuranceDocumentUrl: data.insuranceDocumentUrl, selfieUrl: data.selfieUrl,
         verificationStatus: 'PENDING',
       },
     });
