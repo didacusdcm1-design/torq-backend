@@ -69,7 +69,6 @@ export class TripsService {
   }
 
   async acceptTrip(tripId: string, riderId: string) {
-    // CRITICAL: Security Check block
     const riderProfile = await this.prisma.riderProfile.findUnique({ where: { userId: riderId } });
     
     if (!riderProfile) {
@@ -91,53 +90,24 @@ export class TripsService {
     return trip;
   }
 
-      async updateStatus(tripId: string, status: string) {
-    // 1. Update the trip status
+  async updateStatus(tripId: string, status: string) {
     const trip = await this.prisma.trip.update({
       where: { id: tripId },
       data: { status: status as any },
       include: { customer: { select: { email: true } }, rider: { select: { email: true } } }
     });
 
-    // 2. If the trip is COMPLETED, pay the rider
+    // PAY RIDER ON COMPLETION
     if (status === 'COMPLETED' && trip.riderId) {
-      // Find the rider's wallet
       const wallet = await this.prisma.wallet.findUnique({ where: { userId: trip.riderId } });
-      
       if (wallet) {
-        // Add the fare to the rider's balance
         await this.prisma.wallet.update({
           where: { id: wallet.id },
           data: { balance: wallet.balance + trip.estimatedFare },
         });
-        console.log(`💰 Paid rider ${trip.rider?.email} KSh ${trip.estimatedFare}`);
       }
     }
 
-    this.eventsGateway.emitTripUpdate(trip);
-    return trip;
-  }, rider: { select: { email: true } } }
-    });
-
-    // 2. If the trip is COMPLETED, pay the rider
-    if (status === 'COMPLETED' && trip.riderId) {
-      // Find the rider's wallet
-      const wallet = await this.prisma.wallet.findUnique({ where: { userId: trip.riderId } });
-      
-      if (wallet) {
-        // Add the fare to the rider's balance
-        await this.prisma.wallet.update({
-          where: { id: wallet.id },
-          data: { balance: wallet.balance + trip.estimatedFare },
-        });
-        console.log(`💰 Paid rider ${trip.rider?.email} KSh ${trip.estimatedFare}`);
-      }
-    }
-
-    this.eventsGateway.emitTripUpdate(trip);
-    return trip;
-  }, rider: { select: { email: true } } }
-    });
     this.eventsGateway.emitTripUpdate(trip);
     return trip;
   }
@@ -195,10 +165,10 @@ export class TripsService {
       data: { verificationStatus: 'APPROVED' },
     });
   }
+
   async getWallet(userId: string) {
     return this.prisma.wallet.findUnique({
       where: { userId: userId },
     });
   }
 }
-
