@@ -1,7 +1,13 @@
 ﻿const { Client } = require('pg');
 
-// We remove the ?sslmode=require from the end, because the Client config handles SSL now
-const connectionString = "postgresql://torq_db_25tf_user:6tHVJ3SAyBs4KJ6x0higfQof4m42Y5xE@dpg-dbfdg5avcj2c73fmolcg-a.singapore-postgres.render.com/torq_db_25tf";
+const client = new Client({
+  connectionString: "postgresql://torq_db_25tf_user:6tHVJ3SAyBs4KJ6x0higfQof4m42Y5xE@dpg-dbfdg5avcj2c73fmolcg-a.singapore-postgres.render.com/torq_db_25tf",
+  ssl: {
+    rejectUnauthorized: false,
+    // This explicitly forces TLS 1.2 which Render requires for external connections
+    minVersion: 'TLSv1.2'
+  }
+});
 
 const sql = `
 INSERT INTO "Rider" (id, "firstName", "lastName", email, phone, status, "createdAt", "updatedAt") 
@@ -12,21 +18,15 @@ VALUES
 ON CONFLICT (email) DO NOTHING;
 `;
 
-console.log("Sending data to Render database...");
-
-const client = new Client({
-  connectionString: connectionString,
-  ssl: { rejectUnauthorized: false },
-  connectionTimeoutMillis: 10000 // Wait up to 10 seconds for Render to wake up
-});
+console.log("Connecting to Render database...");
 
 client.connect()
   .then(() => {
-    console.log("Connected! Inserting data...");
+    console.log("✅ Connected! Inserting data...");
     return client.query(sql);
   })
-  .then(() => {
-    console.log('✅ Successfully inserted riders directly into the database!');
+  .then((res) => {
+    console.log(`✅ Successfully processed rows! (Command: ${res.command})`);
     return client.end();
   })
   .catch(err => {
