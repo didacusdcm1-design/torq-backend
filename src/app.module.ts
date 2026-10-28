@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { EventsGateway } from './events/events.gateway';
 import { AdminController } from './admin/admin.controller';
 import { PricingModule } from './pricing/pricing.module';
+import { RidersModule } from './riders/riders.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { PricingModule } from './pricing/pricing.module';
     AuthModule,
     TripsModule,
     PricingModule,
+    RidersModule,
   ],
   controllers: [AppController, AdminController],
   providers: [AppService, EventsGateway],

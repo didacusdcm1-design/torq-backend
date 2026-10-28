@@ -101,3 +101,13 @@ enum TripStatus {
   COMPLETED
   CANCELLED
 }
+model Rider {
+  id        String   @id @default(uuid())
+  firstName String
+  lastName  String
+  email     String   @unique
+  phone     String
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
