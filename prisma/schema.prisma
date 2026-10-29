@@ -1,4 +1,4 @@
-﻿generator client {
+generator client {
   provider = "prisma-client-js"
 }
 
@@ -13,10 +13,10 @@ enum Role {
 }
 
 enum TripStatus {
-  ARRIVED_AT_PICKUP
   REQUESTED
   ACCEPTED
   IN_PROGRESS
+  ARRIVED_AT_PICKUP
   COMPLETED
   CANCELLED
 }
@@ -41,20 +41,20 @@ model User {
 }
 
 model RiderProfile {
-  id                String   @id @default(uuid())
-  userId            String   @unique
-  fullName          String?
-  nationalId        String?
-  licenseNumber     String?
-  emergencyContact  String?
-  bikeMake          String?
-  bikeModel         String?
-  bikeColor         String?
-  bikeReg           String?
-  selfieUrl         String?
-  licenseDocUrl     String?
-  verificationStatus String  @default("PENDING_REVIEW")
-  user              User     @relation(fields: [userId], references: [id])
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  fullName           String?
+  nationalId         String?
+  licenseNumber      String?
+  emergencyContact   String?
+  bikeMake           String?
+  bikeModel          String?
+  bikeColor          String?
+  bikeReg            String?
+  selfieUrl          String?
+  licenseDocUrl      String?
+  verificationStatus String   @default("PENDING_REVIEW")
+  user               User     @relation(fields: [userId], references: [id])
 }
 
 model Trip {
