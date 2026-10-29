@@ -22,7 +22,8 @@ import { TripAcceptController } from './trip-accept.controller';
     NotificationsController,
     RiderRegistrationController,
     RiderStatusController,
-    ForceOnlineController
+    ForceOnlineController,
+    TripAcceptController
   ],
   providers: [
     TripsService,
@@ -32,4 +33,3 @@ import { TripAcceptController } from './trip-accept.controller';
   ],
 })
 export class TripsModule {}
-
