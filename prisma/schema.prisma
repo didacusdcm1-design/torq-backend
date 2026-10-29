@@ -1,4 +1,4 @@
-generator client {
+﻿generator client {
   provider = "prisma-client-js"
 }
 
@@ -13,6 +13,7 @@ enum Role {
 }
 
 enum TripStatus {
+  ARRIVED_AT_PICKUP
   REQUESTED
   ACCEPTED
   IN_PROGRESS
