@@ -5,24 +5,25 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { EventsGateway } from '../events/events.gateway';
 import { FareCalculatorService } from './fare-calculator.service';
 import { DispatchService } from './dispatch.service';
-
 import { LedgerController } from './ledger.controller';
 import { WalletController } from './wallet.controller';
 import { NotificationsController } from './notifications.controller';
-
-
+import { RiderRegistrationController } from './rider-registration.controller';
 
 @Module({
   imports: [PrismaModule],
-  controllers: [TripsController, LedgerController, WalletController, NotificationsController],
-  providers: [TripsService, EventsGateway, FareCalculatorService, DispatchService],
+  controllers: [
+    TripsController, 
+    LedgerController, 
+    WalletController, 
+    NotificationsController,
+    RiderRegistrationController // <-- Make sure this is here
+  ],
+  providers: [
+    TripsService, 
+    EventsGateway, 
+    FareCalculatorService, 
+    DispatchService
+  ],
 })
 export class TripsModule {}
-
-
-
-
-
-
-
-
