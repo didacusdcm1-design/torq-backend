@@ -27,10 +27,10 @@ export class SeedController {
         message: "✅ Seeded successfully!", 
         totalRidersInDB: count 
       };
-    } catch (error) {
+    } catch (error: any) { // <-- The fix is adding ': any' here
       return { 
         message: "❌ Seeding failed", 
-        error: error.message 
+        error: error?.message || String(error) // <-- Safe extraction
       };
     }
   }
