@@ -59,7 +59,6 @@ export class RiderRegistrationController {
     return { message: 'Registration submitted for review', profile };
   }
 
-  @UseGuards(AuthGuard('jwt'))
   @Patch('approve/:userId')
   async approveRider(@Param('userId') userId: string) {
     return this.prisma.riderProfile.update({
@@ -67,7 +66,6 @@ export class RiderRegistrationController {
       data: { verificationStatus: 'APPROVED' },
     });
   }
-  @UseGuards(AuthGuard('jwt'))
   @Patch('reject/:userId')
   async rejectRider(@Param('userId') userId: string, @Body('reason') reason: string) {
     return this.prisma.riderProfile.update({
@@ -79,3 +77,4 @@ export class RiderRegistrationController {
     });
   }
 }
+
