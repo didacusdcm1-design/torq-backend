@@ -1,48 +1,20 @@
 ﻿import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { FareCalculatorService } from './fare-calculator.service'; // <-- Import
 
 @Injectable()
 export class TripsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private fareCalculator: FareCalculatorService // <-- Inject
+  ) {}
 
-  // --- TRIP MANAGEMENT ---
+  // ... (Keep all your other existing methods like findAll, findOne, etc. here) ...
+  
   async findAll(search?: string) {
     return this.prisma.trip.findMany({
       orderBy: { createdAt: 'desc' },
       include: { customer: true, rider: true },
-    });
-  }
-
-  async createTrip(body: any, customerId: string) {
-    return this.prisma.trip.create({
-      data: { ...body, customerId },
-    });
-  }
-
-  async getUserTrips(userId: string) {
-    return this.prisma.trip.findMany({
-      where: { customerId: userId },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
-
-  async getPendingTrips(riderId: string) {
-    return this.prisma.trip.findMany({
-      where: { status: 'REQUESTED', riderId: null },
-    });
-  }
-
-  async acceptTrip(id: string, riderId: string) {
-    return this.prisma.trip.update({
-      where: { id },
-      data: { riderId, status: 'IN_PROGRESS' }, // Using IN_PROGRESS instead of ASSIGNED
-    });
-  }
-
-  async updateStatus(id: string, status: string) {
-    return this.prisma.trip.update({
-      where: { id },
-      data: { status: status as any },
     });
   }
 
@@ -55,71 +27,35 @@ export class TripsService {
     return trip;
   }
 
-  // --- ADMIN USER MANAGEMENT ---
-  async getAllTripsForAdmin(search?: string) {
-    return this.prisma.trip.findMany({
-      where: search ? { id: { contains: search, mode: 'insensitive' } } : {},
-      orderBy: { createdAt: 'desc' },
-      include: { customer: true, rider: true },
+  // --- UPDATED CREATE TRIP LOGIC ---
+  async createTrip(body: any, customerId: string) {
+    // 1. Get distance and duration from the request body
+    const distanceKm = body.distanceKm || 5; // Default to 5km if not provided (for testing)
+    const durationMins = body.durationMins || 15; // Default to 15 mins
+
+    // 2. Calculate the fare on the backend (Do NOT trust frontend fares)
+    const financials = this.fareCalculator.calculateFare(distanceKm, durationMins);
+    
+    // 3. Generate the Pickup PIN
+    const pickupPin = this.fareCalculator.generatePickupPin();
+
+    // 4. Save to database
+    return this.prisma.trip.create({
+      data: {
+        pickupLat: body.pickupLat,
+        pickupLng: body.pickupLng,
+        dropoffLat: body.dropoffLat,
+        dropoffLng: body.dropoffLng,
+        estimatedFare: financials.grossFare,
+        finalFare: financials.grossFare, // For now, final = estimated
+        distanceKm: distanceKm,
+        durationMins: durationMins,
+        pickupPin: pickupPin,
+        customerId: customerId,
+        status: 'REQUESTED',
+      },
     });
   }
 
-  async getAllUsersForAdmin() {
-    return this.prisma.user.findMany({ orderBy: { createdAt: 'desc' } });
-  }
-
-  async updateUserRole(id: string, role: string) {
-    return this.prisma.user.update({
-      where: { id },
-      data: { role: role as any },
-    });
-  }
-
-  async updateFullProfile(userId: string, body: any) {
-    return this.prisma.user.update({
-      where: { id: userId },
-      data: body,
-    });
-  }
-
-  // --- RIDER MANAGEMENT ---
-  async approveRider(id: string) {
-    return this.prisma.user.update({
-      where: { id },
-      data: { role: 'RIDER' }, // Assuming approval upgrades their role or status
-    });
-  }
-
-  async rejectRider(id: string, reason: string) {
-    // In a real app, save the reason in an audit log
-    return this.prisma.user.update({
-      where: { id },
-      data: { role: 'CUSTOMER' }, // Demote back to customer
-    });
-  }
-
-  async getRiderHistory(riderId: string) {
-    return this.prisma.trip.findMany({
-      where: { riderId },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
-
-  // --- WALLET & PAYOUTS ---
-  async getWallet(userId: string) {
-    // Mocking wallet for now if you don't have a Wallet table fully set up
-    return { balance: 0, currency: 'KES' };
-  }
-
-  async requestPayout(userId: string) {
-    return { message: 'Payout request received', status: 'PENDING' };
-  }
-
-  // --- NOTIFICATIONS ---
-  async getNotifications(userId: string) {
-    return this.prisma.notification.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
+  // ... (Keep all the other methods like getUserTrips, getPendingTrips, etc.) ...
 }

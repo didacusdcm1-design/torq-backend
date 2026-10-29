@@ -1,4 +1,4 @@
-generator client {
+﻿generator client {
   provider = "prisma-client-js"
 }
 
@@ -23,6 +23,9 @@ model User {
 }
 
 model Trip {
+  pickupPin     String?   @default("0000")
+  distanceKm    Float?    @default(0)
+  durationMins  Int?      @default(0)
   id            String      @id @default(uuid())
   pickupLat     Float
   pickupLng     Float
@@ -111,3 +114,4 @@ model Rider {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
