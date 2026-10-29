@@ -7,7 +7,8 @@ import { FareCalculatorService } from './fare-calculator.service'; // <-- Import
 
 @Module({
   imports: [PrismaModule],
-  controllers: [TripsController],
+  controllers: [TripsController, OnlineSeedController],
   providers: [TripsService, EventsGateway, FareCalculatorService], // <-- Add to providers
 })
 export class TripsModule {}
+
