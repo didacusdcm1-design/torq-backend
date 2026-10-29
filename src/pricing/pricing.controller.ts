@@ -1,7 +1,6 @@
 ﻿import { Controller, Get, Patch, Body, UseGuards } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthGuard } from '@nestjs/passport';
-import { AuthGuard } from '@nestjs/passport';
 
 @Controller('pricing')
 export class PricingController {
@@ -24,7 +23,6 @@ export class PricingController {
   async updatePricing(@Body() body: any) {
     let rules = await this.prisma.pricingRule.findFirst();
     
-    // If no rules exist yet, create them with the body data
     if (!rules) {
       return this.prisma.pricingRule.create({
         data: {
@@ -36,7 +34,6 @@ export class PricingController {
       });
     }
     
-    // Otherwise, update the existing rules
     return this.prisma.pricingRule.update({
       where: { id: rules.id },
       data: {
@@ -48,7 +45,3 @@ export class PricingController {
     });
   }
 }
-
-
-
-
