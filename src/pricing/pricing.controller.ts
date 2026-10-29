@@ -21,8 +21,21 @@ export class PricingController {
   @UseGuards(AuthGuard('jwt'))
   @Patch()
   async updatePricing(@Body() body: any) {
-    const rules = await this.prisma.pricingRule.findFirst();
+    let rules = await this.prisma.pricingRule.findFirst();
     
+    // If no rules exist yet, create them with the body data
+    if (!rules) {
+      return this.prisma.pricingRule.create({
+        data: {
+          baseFare: Number(body.baseFare) || 50,
+          perKmRate: Number(body.perKmRate) || 30,
+          perMinuteRate: Number(body.perMinuteRate) || 5,
+          commissionRate: Number(body.commissionRate) || 0.15,
+        },
+      });
+    }
+    
+    // Otherwise, update the existing rules
     return this.prisma.pricingRule.update({
       where: { id: rules.id },
       data: {
