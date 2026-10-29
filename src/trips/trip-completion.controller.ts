@@ -21,7 +21,7 @@ export class TripCompletionController {
     }
   }
 
-  @Patch('complete/:id')
+    @Patch('complete/:id')
   async completeTrip(@Param('id') id: string, @Body('pin') pin: string) {
     try {
       const trip = await this.prisma.trip.findUnique({ where: { id } });
@@ -29,15 +29,17 @@ export class TripCompletionController {
       
       if (trip.pickupPin !== pin) throw new Error('Invalid PIN');
 
+      // RAW SQL to force the update
       await this.prisma.$executeRaw`
         UPDATE "Trip" 
         SET "status" = 'COMPLETED'::"TripStatus"
         WHERE "id" = ${id}
       `;
-      return { message: 'Trip completed successfully' };
+      return { success: true, message: 'Trip completed successfully' };
     } catch (error: any) {
       console.error("Complete Trip Error:", error);
-      throw new InternalServerErrorException(error.message);
+      return { success: false, message: error.message };
     }
   }
 }
+
