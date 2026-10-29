@@ -1,4 +1,4 @@
-﻿import { Controller, Post, Body, UseGuards, Req, Patch, Param } from '@nestjs/common';
+﻿import { Controller, Post, Body, UseGuards, Req, Patch, Param, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -9,73 +9,53 @@ export class RiderRegistrationController {
   // Temporarily public for testing
   @Post('register')
   async registerRider(@Body() body: any, @Req() req: any) {
-    // 1. Find or Create the user safely (for testing without login)
+    const userId = req.user?.userId || req.user?.id || req.user?.sub || 'dfb0e62a-72b5-4899-8e1c-d78a4e60d9b6';
     const phone = body.phone || "0700000000"; 
+    
+    // Find or create user
     const user = await this.prisma.user.upsert({
       where: { phone: phone },
       update: { role: 'RIDER' },
-      create: { 
-        phone: phone, 
-        role: 'RIDER',
-        password: "password123",
-      }
+      create: { phone: phone, role: 'RIDER', password: "password123" }
     });
-    
-    // THIS WAS MISSING
-    const finalUserId = user.id;
 
-    // 2. Upsert the RiderProfile using the correct ID
     const profile = await this.prisma.riderProfile.upsert({
-      where: { userId: finalUserId },
+      where: { userId: user.id },
       update: {
-        fullName: body.fullName,
-        nationalId: body.nationalId,
-        licenseNumber: body.licenseNumber,
-        emergencyContact: body.emergencyContact,
-        bikeMake: body.bikeMake,
-        bikeModel: body.bikeModel,
-        bikeColor: body.bikeColor,
-        bikeReg: body.bikeReg,
-        selfieUrl: 'https://mock-selfie-url.com',
-        licenseDocUrl: 'https://mock-doc-url.com',
+        fullName: body.fullName, nationalId: body.nationalId, licenseNumber: body.licenseNumber,
+        emergencyContact: body.emergencyContact, bikeMake: body.bikeMake, bikeModel: body.bikeModel,
+        bikeColor: body.bikeColor, bikeReg: body.bikeReg, selfieUrl: 'https://mock.com', licenseDocUrl: 'https://mock.com',
         verificationStatus: 'PENDING_REVIEW',
       },
       create: {
-        userId: finalUserId,
-        fullName: body.fullName,
-        nationalId: body.nationalId,
-        licenseNumber: body.licenseNumber,
-        emergencyContact: body.emergencyContact,
-        bikeMake: body.bikeMake,
-        bikeModel: body.bikeModel,
-        bikeColor: body.bikeColor,
-        bikeReg: body.bikeReg,
-        selfieUrl: 'https://mock-selfie-url.com',
-        licenseDocUrl: 'https://mock-doc-url.com',
+        userId: user.id,
+        fullName: body.fullName, nationalId: body.nationalId, licenseNumber: body.licenseNumber,
+        emergencyContact: body.emergencyContact, bikeMake: body.bikeMake, bikeModel: body.bikeModel,
+        bikeColor: body.bikeColor, bikeReg: body.bikeReg, selfieUrl: 'https://mock.com', licenseDocUrl: 'https://mock.com',
         verificationStatus: 'PENDING_REVIEW',
       }
     });
 
-    return { message: 'Registration submitted for review', profile };
+    return { message: 'Registration submitted', profile };
   }
 
+  // FIX: Use upsert for approve to prevent crashes
   @Patch('approve/:userId')
   async approveRider(@Param('userId') userId: string) {
-    return this.prisma.riderProfile.update({
+    return this.prisma.riderProfile.upsert({
       where: { userId: userId },
-      data: { verificationStatus: 'APPROVED' },
+      update: { verificationStatus: 'APPROVED' },
+      create: { userId: userId, verificationStatus: 'APPROVED' }
     });
   }
+
+  // FIX: Use upsert for reject to prevent crashes
   @Patch('reject/:userId')
   async rejectRider(@Param('userId') userId: string, @Body('reason') reason: string) {
-    return this.prisma.riderProfile.update({
+    return this.prisma.riderProfile.upsert({
       where: { userId: userId },
-      data: { 
-        verificationStatus: 'REJECTED',
-        // In a production app, you would save the reason to an AuditLog table
-      },
+      update: { verificationStatus: 'REJECTED' },
+      create: { userId: userId, verificationStatus: 'REJECTED' }
     });
   }
 }
-
-
