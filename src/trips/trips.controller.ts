@@ -9,6 +9,13 @@ import { AuthGuard } from '@nestjs/passport';
 export class TripsController {
   constructor(private readonly tripsService: TripsService) {}
 
+  // --- THIS IS THE MISSING ROUTE ---
+  @Get()
+  async getAllTrips(@Query('search') search?: string) {
+    return this.tripsService.findAll(search);
+  }
+  // ---------------------------------
+
   @UseGuards(AuthGuard('jwt'))
   @Post('request')
   create(@Body() body: any, @Req() req: any) {
@@ -70,29 +77,6 @@ export class TripsController {
     return this.tripsService.approveRider(id);
   }
 
-  // FILE UPLOAD ENDPOINT
-  @Post('upload')
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: './uploads',
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
-      },
-    }),
-  }))
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
-    // Returns the full URL pointing to the Render backend
-    return { url: `https://torq-backend.onrender.com/uploads/${file.filename}` };
-  }
-
-  @UseGuards(AuthGuard('jwt'))
-  @Get('rider/wallet')
-  async getWallet(@Req() req: any) {
-    const userId = req.user.userId || req.user.id || req.user.sub;
-    return this.tripsService.getWallet(userId);
-  }
-
   @Patch('admin/riders/:id/reject')
   async rejectRider(@Param('id') id: string, @Body('reason') reason: string) {
     return this.tripsService.rejectRider(id, reason);
@@ -117,5 +101,26 @@ export class TripsController {
   async requestPayout(@Req() req: any) {
     const userId = req.user.userId || req.user.id || req.user.sub;
     return this.tripsService.requestPayout(userId);
+  }
+  
+  @UseGuards(AuthGuard('jwt'))
+  @Get('rider/wallet')
+  async getWallet(@Req() req: any) {
+    const userId = req.user.userId || req.user.id || req.user.sub;
+    return this.tripsService.getWallet(userId);
+  }
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file', {
+    storage: diskStorage({
+      destination: './uploads',
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
+      },
+    }),
+  }))
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+    return { url: `https://torq-backend.onrender.com/uploads/${file.filename}` };
   }
 }
