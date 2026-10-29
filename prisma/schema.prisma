@@ -1,4 +1,4 @@
-generator client {
+﻿generator client {
   provider = "prisma-client-js"
 }
 
@@ -40,6 +40,13 @@ model User {
 }
 
 model RiderProfile {
+  id                String   @id @default(uuid())
+  licenseNumber     String?
+  licenseExpiry     DateTime?
+  motorcycleReg     String?
+  verificationStatus String  @default("DRAFT") // DRAFT, SUBMITTED, APPROVED, REJECTED
+  operatingArea     String?
+  payoutMethod      String?
   id        String @id @default(uuid())
   userId    String @unique
   user      User   @relation(fields: [userId], references: [id])
