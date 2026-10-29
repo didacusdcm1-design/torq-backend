@@ -42,12 +42,16 @@ model User {
 model RiderProfile {
   id                String   @id @default(uuid())
   userId            String   @unique
+  nationalId        String?
   licenseNumber     String?
-  licenseExpiry     DateTime?
-  motorcycleReg     String?
-  verificationStatus String  @default("DRAFT")
-  operatingArea     String?
-  payoutMethod      String?
+  emergencyContact  String?
+  bikeMake          String?
+  bikeModel         String?
+  bikeColor         String?
+  bikeReg           String?
+  selfieUrl         String?
+  licenseDocUrl     String?
+  verificationStatus String  @default("PENDING_REVIEW") // PENDING_REVIEW, APPROVED, REJECTED
   user              User     @relation(fields: [userId], references: [id])
 }
 
