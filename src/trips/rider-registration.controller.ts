@@ -1,4 +1,4 @@
-﻿import { Controller, Post, Body, UseGuards, Req, Patch, Param, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+﻿import { Controller, Post, Body, UseGuards, Req, Patch, Param, NotFoundException, InternalServerErrorException, Get } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -6,19 +6,28 @@ import { AuthGuard } from '@nestjs/passport';
 export class RiderRegistrationController {
   constructor(private readonly prisma: PrismaService) {}
 
+  // 1. GET ALL RIDERS (Fetch fresh data directly)
+  @Get()
+  async getAllRiders() {
+    return this.prisma.user.findMany({
+      where: { role: 'RIDER' },
+      include: { riderProfile: true },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  // 2. REGISTER RIDER
   @Post('register')
   async registerRider(@Body() body: any, @Req() req: any) {
     const userId = req.user?.userId || req.user?.id || req.user?.sub || 'dfb0e62a-72b5-4899-8e1c-d78a4e60d9b6';
     const phone = body.phone || "0700000000"; 
     
-    // Create user if not exists
     const user = await this.prisma.user.upsert({
       where: { phone: phone },
       update: { role: 'RIDER' },
       create: { phone: phone, role: 'RIDER', password: "password123" }
     });
 
-    // Upsert profile
     const profile = await this.prisma.riderProfile.upsert({
       where: { userId: user.id },
       update: {
@@ -53,10 +62,10 @@ export class RiderRegistrationController {
     return { message: 'Registration submitted', profile };
   }
 
+  // 3. APPROVE RIDER (Raw SQL Force Update)
   @Patch('approve/:userId')
   async approveRider(@Param('userId') userId: string) {
     try {
-      // RAW SQL BYPASS
       await this.prisma.$executeRaw`
         UPDATE "RiderProfile" 
         SET "verificationStatus" = 'APPROVED' 
@@ -69,10 +78,10 @@ export class RiderRegistrationController {
     }
   }
 
+  // 4. REJECT RIDER (Raw SQL Force Update)
   @Patch('reject/:userId')
   async rejectRider(@Param('userId') userId: string, @Body('reason') reason: string) {
     try {
-      // RAW SQL BYPASS
       await this.prisma.$executeRaw`
         UPDATE "RiderProfile" 
         SET "verificationStatus" = 'REJECTED' 
