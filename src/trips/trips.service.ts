@@ -11,15 +11,18 @@ export class TripsService {
 
   // ... (Keep all your other existing methods like findAll, findOne, etc. here) ...
   
-      async findAll(search?: string) {
-    return this.prisma.user.findMany({
-      where: { 
-        role: 'RIDER',
-        ...(search ? { OR: [{ phone: { contains: search } }, { email: { contains: search } }] } : {})
-      },
+        async findAll(search?: string) {
+    return this.prisma.trip.findMany({
+      where: search ? {
+        OR: [
+          { id: { contains: search, mode: 'insensitive' } },
+          { pickupPin: { contains: search } },
+        ],
+      } : {},
       orderBy: { createdAt: 'desc' },
       include: {
-        riderProfile: true 
+        customer: true,
+        rider: true,
       }
     });
   }
@@ -79,6 +82,7 @@ export class TripsService {
 
   // ... (Keep all the other methods like getUserTrips, getPendingTrips, etc.) ...
 }
+
 
 
 

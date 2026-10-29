@@ -12,7 +12,7 @@ export class TripsController {
     private readonly prisma: PrismaService // <-- INJECTED HERE
   ) {}
 
-  @Get()
+    @Get()
   async getAllTrips(@Query('search') search?: string) {
     return this.tripsService.findAll(search);
   }
@@ -56,3 +56,4 @@ export class TripsController {
     );
   }
 }
+
