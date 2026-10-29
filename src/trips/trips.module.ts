@@ -8,13 +8,15 @@ import { DispatchService } from './dispatch.service';
 
 import { LedgerController } from './ledger.controller';
 import { WalletController } from './wallet.controller';
+import { NotificationsController } from './notifications.controller';
 
 @Module({
   imports: [PrismaModule],
-  controllers: [TripsController, LedgerController, WalletController],
+  controllers: [TripsController, LedgerController, WalletController, NotificationsController],
   providers: [TripsService, EventsGateway, FareCalculatorService, DispatchService],
 })
 export class TripsModule {}
+
 
 
 
