@@ -8,17 +8,16 @@ export class TripSeedController {
   @Get()
   async seed() {
     try {
-      // Create a dummy customer user first so the foreign key doesn't fail
+      // 1. Create a dummy customer using your exact User schema
       const customer = await this.prisma.user.create({
         data: {
-          phoneNumber: '0700000000',
-          firstName: 'Jane',
-          lastName: 'Doe',
+          phone: '0700000000',
+          email: 'customer@torq.com',
           role: 'CUSTOMER',
         }
       });
 
-      // Create the dummy trip using your EXACT schema fields
+      // 2. Create the dummy trip using your exact Trip schema
       const trip = await this.prisma.trip.create({
         data: {
           pickupLat: -1.2635, 
