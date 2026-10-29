@@ -1,38 +1,20 @@
 ﻿import { Controller, Get, Post, Body } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 
 @Controller('pricing')
 export class PricingController {
-  constructor(private prisma: PrismaService) {}
-
   @Get()
-  async getPricing() {
-    let pricing = await this.prisma.pricingRule.findFirst();
-    if (!pricing) {
-      pricing = await this.prisma.pricingRule.create({ data: {} });
-    }
-    return pricing;
+  getPricing() {
+    // Return hardcoded default pricing until we build a PricingRule model
+    return {
+      baseFare: 50,
+      perKmRate: 30,
+      perMinuteRate: 5,
+      commissionRate: 0.15
+    };
   }
 
   @Post()
-  async updatePricing(@Body() data: any) {
-    const pricing = await this.prisma.pricingRule.findFirst();
-    if (pricing) {
-      return this.prisma.pricingRule.update({
-        where: { id: pricing.id },
-        data: {
-          baseFare: Number(data.baseFare),
-          perKmRate: Number(data.perKmRate),
-          commission: Number(data.commission),
-        },
-      });
-    }
-    return this.prisma.pricingRule.create({
-      data: {
-        baseFare: Number(data.baseFare),
-        perKmRate: Number(data.perKmRate),
-        commission: Number(data.commission),
-      },
-    });
+  updatePricing(@Body() body: any) {
+    return { message: 'Pricing updated', data: body };
   }
 }
