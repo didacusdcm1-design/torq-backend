@@ -55,7 +55,7 @@ export class RiderRegistrationController {
         where: { userId: userId },
         data: { verificationStatus: 'APPROVED' }
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Approve Error:", error);
       throw new InternalServerErrorException(error.message);
     }
@@ -76,9 +76,10 @@ export class RiderRegistrationController {
         where: { userId: userId },
         data: { verificationStatus: 'REJECTED' }
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Reject Error:", error);
       throw new InternalServerErrorException(error.message);
     }
   }
 }
+
