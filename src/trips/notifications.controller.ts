@@ -19,6 +19,7 @@ export class NotificationsController {
   }
 
   // SECURED: Only logged-in admins can send notifications
+  @UseGuards(AuthGuard('jwt'))
   @Post()
   async sendNotification(@Body() body: any) {
     // If body.userId is provided, send to that user. Otherwise, broadcast to ALL riders.
@@ -44,4 +45,5 @@ export class NotificationsController {
     }
   }
 }
+
 

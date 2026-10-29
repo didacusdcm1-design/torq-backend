@@ -1,6 +1,7 @@
 ﻿import { Controller, Get, Patch, Body, UseGuards } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthGuard } from '@nestjs/passport';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('pricing')
 export class PricingController {
@@ -18,6 +19,7 @@ export class PricingController {
   }
 
   // SECURED: Only logged-in admins can update pricing
+  @UseGuards(AuthGuard('jwt'))
   @Patch()
   async updatePricing(@Body() body: any) {
     let rules = await this.prisma.pricingRule.findFirst();
@@ -46,6 +48,7 @@ export class PricingController {
     });
   }
 }
+
 
 
 
