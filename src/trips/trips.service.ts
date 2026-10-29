@@ -11,7 +11,7 @@ export class TripsService {
 
   // ... (Keep all your other existing methods like findAll, findOne, etc. here) ...
   
-    async findAll(search?: string) {
+      async findAll(search?: string) {
     return this.prisma.user.findMany({
       where: { 
         role: 'RIDER',
@@ -19,7 +19,7 @@ export class TripsService {
       },
       orderBy: { createdAt: 'desc' },
       include: {
-        riderProfile: true // <-- THIS IS THE MISSING PIECE
+        riderProfile: true 
       }
     });
   }
@@ -79,6 +79,7 @@ export class TripsService {
 
   // ... (Keep all the other methods like getUserTrips, getPendingTrips, etc.) ...
 }
+
 
 
 
