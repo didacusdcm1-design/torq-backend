@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class TripsService {
   constructor(private prisma: PrismaService) {}
 
-  // 1. For the Admin Table
+  // --- TRIP MANAGEMENT ---
   async findAll(search?: string) {
     return this.prisma.trip.findMany({
       orderBy: { createdAt: 'desc' },
@@ -13,13 +13,9 @@ export class TripsService {
     });
   }
 
-  // 2. Restore missing methods for your Controller
   async createTrip(body: any, customerId: string) {
     return this.prisma.trip.create({
-      data: {
-        ...body,
-        customerId,
-      },
+      data: { ...body, customerId },
     });
   }
 
@@ -39,39 +35,43 @@ export class TripsService {
   async acceptTrip(id: string, riderId: string) {
     return this.prisma.trip.update({
       where: { id },
-      data: { riderId, status: 'ASSIGNED' },
+      data: { riderId, status: 'IN_PROGRESS' }, // Using IN_PROGRESS instead of ASSIGNED
     });
   }
 
-  async updateStatus(id: string, status: any) {
+  async updateStatus(id: string, status: string) {
     return this.prisma.trip.update({
       where: { id },
-      data: { status },
+      data: { status: status as any },
     });
   }
 
+  async findOne(id: string) {
+    const trip = await this.prisma.trip.findUnique({
+      where: { id },
+      include: { customer: true, rider: true },
+    });
+    if (!trip) throw new NotFoundException('Trip not found');
+    return trip;
+  }
+
+  // --- ADMIN USER MANAGEMENT ---
   async getAllTripsForAdmin(search?: string) {
     return this.prisma.trip.findMany({
-      where: search ? {
-        OR: [
-          { id: { contains: search, mode: 'insensitive' } },
-        ],
-      } : {},
+      where: search ? { id: { contains: search, mode: 'insensitive' } } : {},
       orderBy: { createdAt: 'desc' },
       include: { customer: true, rider: true },
     });
   }
 
   async getAllUsersForAdmin() {
-    return this.prisma.user.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
+    return this.prisma.user.findMany({ orderBy: { createdAt: 'desc' } });
   }
 
-  async updateUserRole(id: string, role: any) {
+  async updateUserRole(id: string, role: string) {
     return this.prisma.user.update({
       where: { id },
-      data: { role },
+      data: { role: role as any },
     });
   }
 
@@ -82,13 +82,44 @@ export class TripsService {
     });
   }
 
-  // Method to fetch a single trip for our Details page
-  async findOne(id: string) {
-    const trip = await this.prisma.trip.findUnique({
+  // --- RIDER MANAGEMENT ---
+  async approveRider(id: string) {
+    return this.prisma.user.update({
       where: { id },
-      include: { customer: true, rider: true },
+      data: { role: 'RIDER' }, // Assuming approval upgrades their role or status
     });
-    if (!trip) throw new NotFoundException('Trip not found');
-    return trip;
+  }
+
+  async rejectRider(id: string, reason: string) {
+    // In a real app, save the reason in an audit log
+    return this.prisma.user.update({
+      where: { id },
+      data: { role: 'CUSTOMER' }, // Demote back to customer
+    });
+  }
+
+  async getRiderHistory(riderId: string) {
+    return this.prisma.trip.findMany({
+      where: { riderId },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  // --- WALLET & PAYOUTS ---
+  async getWallet(userId: string) {
+    // Mocking wallet for now if you don't have a Wallet table fully set up
+    return { balance: 0, currency: 'KES' };
+  }
+
+  async requestPayout(userId: string) {
+    return { message: 'Payout request received', status: 'PENDING' };
+  }
+
+  // --- NOTIFICATIONS ---
+  async getNotifications(userId: string) {
+    return this.prisma.notification.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 }
