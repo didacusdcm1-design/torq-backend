@@ -7,15 +7,11 @@ export class LedgerController {
 
   @Get('summary')
   async getSummary() {
-    // Aggregate the ledger entries by type
     const aggregations = await this.prisma.ledgerEntry.groupBy({
       by: ['entryType'],
-      _sum: {
-        amount: true,
-      },
+      _sum: { amount: true },
     });
 
-    // Format the response for the frontend
     let grossVolume = 0;
     let totalCommission = 0;
     let totalRiderEarnings = 0;
@@ -28,11 +24,33 @@ export class LedgerController {
 
     const totalTransactions = await this.prisma.ledgerEntry.count();
 
-    return {
-      grossVolume,
-      totalCommission,
-      totalRiderEarnings,
-      totalTransactions,
-    };
+    return { grossVolume, totalCommission, totalRiderEarnings, totalTransactions };
+  }
+
+  @Get('chart-data')
+  async getChartData() {
+    // For now, we will fetch all entries and group them in JS to avoid raw SQL date truncation complexities across different DB versions.
+    const entries = await this.prisma.ledgerEntry.findMany({
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const dailyData: Record<string, { date: string, revenue: number, commission: number }> = {};
+
+    entries.forEach(entry => {
+      // Format date as "Oct 29"
+      const dateStr = new Date(entry.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      
+      if (!dailyData[dateStr]) {
+        dailyData[dateStr] = { date: dateStr, revenue: 0, commission: 0 };
+      }
+
+      if (entry.entryType === 'GROSS_FARE') {
+        dailyData[dateStr].revenue += entry.amount;
+      } else if (entry.entryType === 'COMMISSION') {
+        dailyData[dateStr].commission += entry.amount;
+      }
+    });
+
+    return Object.values(dailyData);
   }
 }
