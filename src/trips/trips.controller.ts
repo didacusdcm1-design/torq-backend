@@ -26,7 +26,7 @@ export class TripsController {
     return this.prisma.trip.findMany({
       where: { 
         riderId: rider.id,
-        status: 'ACCEPTED'
+        status: { in: ['ACCEPTED', 'IN_PROGRESS'] }
       },
       include: {
         customer: true
@@ -56,4 +56,5 @@ export class TripsController {
     );
   }
 }
+
 

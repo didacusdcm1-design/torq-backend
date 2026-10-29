@@ -25,4 +25,11 @@ export class TripCompletionController {
       data: { status: 'COMPLETED' },
     });
   }
+  @Patch('status/:id')
+  async updateStatus(@Param('id') id: string, @Body('status') status: string) {
+    return this.prisma.trip.update({
+      where: { id },
+      data: { status: status as any },
+    });
+  }
 }
