@@ -1,4 +1,4 @@
-﻿import { Controller, Post, Body, UseGuards, Req, Patch, Param } from '@nestjs/common';
+﻿import { Controller, Post, Body, UseGuards, Req, Patch, Param, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -6,22 +6,29 @@ import { AuthGuard } from '@nestjs/passport';
 export class RiderRegistrationController {
   constructor(private readonly prisma: PrismaService) {}
 
+  // Temporarily public for testing
   @Post('register')
   async registerRider(@Body() body: any, @Req() req: any) {
-    const userId = req.user?.userId || req.user?.id || req.user?.sub || 'dfb0e62a-72b5-4899-8e1c-d78a4e60d9b6'; // Hardcoded test user ID
+    // 1. Use a fallback test user ID if not logged in
+    const userId = req.user?.userId || req.user?.id || req.user?.sub || 'dfb0e62a-72b5-4899-8e1c-d78a4e60d9b6';
 
-    // Update User role AND Full Name
+    // 2. Check if user exists
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found. Please log in first.');
+    }
+
+    // 3. Update the User role (do NOT update email to avoid unique conflicts)
     await this.prisma.user.update({
       where: { id: userId },
-      data: { 
-        role: 'RIDER',
-        email: body.fullName ? `${body.fullName.replace(/\s+/g, '').toLowerCase()}@torq.com` : undefined // Temporary hack to store name if no name field exists
-      }
+      data: { role: 'RIDER' }
     });
 
+    // 4. Upsert the RiderProfile
     const profile = await this.prisma.riderProfile.upsert({
       where: { userId: userId },
       update: {
+        fullName: body.fullName,
         nationalId: body.nationalId,
         licenseNumber: body.licenseNumber,
         emergencyContact: body.emergencyContact,
@@ -35,6 +42,7 @@ export class RiderRegistrationController {
       },
       create: {
         userId: userId,
+        fullName: body.fullName,
         nationalId: body.nationalId,
         licenseNumber: body.licenseNumber,
         emergencyContact: body.emergencyContact,
@@ -60,4 +68,3 @@ export class RiderRegistrationController {
     });
   }
 }
-

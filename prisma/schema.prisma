@@ -1,4 +1,4 @@
-generator client {
+﻿generator client {
   provider = "prisma-client-js"
 }
 
@@ -42,6 +42,7 @@ model User {
 model RiderProfile {
   id                String   @id @default(uuid())
   userId            String   @unique
+  fullName          String?
   nationalId        String?
   licenseNumber     String?
   emergencyContact  String?
@@ -51,7 +52,7 @@ model RiderProfile {
   bikeReg           String?
   selfieUrl         String?
   licenseDocUrl     String?
-  verificationStatus String  @default("PENDING_REVIEW") // PENDING_REVIEW, APPROVED, REJECTED
+  verificationStatus String  @default("PENDING_REVIEW")
   user              User     @relation(fields: [userId], references: [id])
 }
 
