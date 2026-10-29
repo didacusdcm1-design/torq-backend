@@ -9,23 +9,21 @@ export class AdminSeedController {
   @Get()
   async seed() {
     try {
-      const adminEmail = 'admin@torq.com';
+      // Using a completely unique phone number for the admin
+      const adminPhone = '0799999999';
       
-      // Check if admin exists
-      const existing = await this.prisma.user.findFirst({ where: { role: 'ADMIN' } });
+      const existing = await this.prisma.user.findUnique({ where: { phone: adminPhone } });
       if (existing) {
         return { message: "ℹ️ Admin already exists", phone: existing.phone };
       }
 
-      // Create the Admin
       const hashedPassword = await bcrypt.hash('admin123', 10);
       const admin = await this.prisma.user.create({
         data: {
-          phone: '0700000000',
-          email: adminEmail,
+          phone: adminPhone,
+          email: 'admin@torq.com',
           password: hashedPassword,
           role: 'ADMIN',
-          wallet: { create: { balance: 0 } }
         }
       });
 
