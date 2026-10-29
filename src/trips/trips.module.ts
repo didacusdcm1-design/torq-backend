@@ -11,6 +11,7 @@ import { NotificationsController } from './notifications.controller';
 import { RiderRegistrationController } from './rider-registration.controller';
 import { RiderStatusController } from './rider-status.controller';
 import { ForceOnlineController } from './force-online.controller';
+import { TripAcceptController } from './trip-accept.controller';
 
 @Module({
   imports: [PrismaModule],
@@ -31,3 +32,4 @@ import { ForceOnlineController } from './force-online.controller';
   ],
 })
 export class TripsModule {}
+
