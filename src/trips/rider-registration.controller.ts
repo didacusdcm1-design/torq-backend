@@ -1,4 +1,4 @@
-﻿import { Controller, Post, Body, UseGuards, Req, Patch, Param, NotFoundException } from '@nestjs/common';
+﻿import { Controller, Post, Body, UseGuards, Req, Patch, Param } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -9,11 +9,8 @@ export class RiderRegistrationController {
   // Temporarily public for testing
   @Post('register')
   async registerRider(@Body() body: any, @Req() req: any) {
-    // 1. Use a fallback test user ID if not logged in
-    const userId = req.user?.userId || req.user?.id || req.user?.sub || 'dfb0e62a-72b5-4899-8e1c-d78a4e60d9b6';
-
-    // 2. Find or Create the user safely (for testing without login)
-    const phone = body.phone || "0700000000"; // Fallback phone
+    // 1. Find or Create the user safely (for testing without login)
+    const phone = body.phone || "0700000000"; 
     const user = await this.prisma.user.upsert({
       where: { phone: phone },
       update: { role: 'RIDER' },
@@ -23,9 +20,11 @@ export class RiderRegistrationController {
         password: "password123",
       }
     });
+    
+    // THIS WAS MISSING
     const finalUserId = user.id;
 
-    // 4. Upsert the RiderProfile
+    // 2. Upsert the RiderProfile using the correct ID
     const profile = await this.prisma.riderProfile.upsert({
       where: { userId: finalUserId },
       update: {
@@ -64,9 +63,8 @@ export class RiderRegistrationController {
   @Patch('approve/:userId')
   async approveRider(@Param('userId') userId: string) {
     return this.prisma.riderProfile.update({
-      where: { userId: finalUserId },
+      where: { userId: userId },
       data: { verificationStatus: 'APPROVED' },
     });
   }
 }
-
