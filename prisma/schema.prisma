@@ -1,4 +1,4 @@
-﻿generator client {
+generator client {
   provider = "prisma-client-js"
 }
 
@@ -46,24 +46,33 @@ model RiderProfile {
 }
 
 model Trip {
-  id            String     @id @default(uuid())
-  pickupPin     String?    @default("0000")
-  distanceKm    Float?     @default(0)
-  durationMins  Int?       @default(0)
+  id            String        @id @default(uuid())
+  pickupPin     String?       @default("0000")
+  distanceKm    Float?        @default(0)
+  durationMins  Int?          @default(0)
   pickupLat     Float
   pickupLng     Float
   dropoffLat    Float
   dropoffLng    Float
   estimatedFare Float
   finalFare     Float?
-  status        TripStatus @default(REQUESTED)
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  status        TripStatus    @default(REQUESTED)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
   customerId    String
-  customer      User       @relation("TripCustomer", fields: [customerId], references: [id])
+  customer      User          @relation("TripCustomer", fields: [customerId], references: [id])
   riderId       String?
-  rider         User?      @relation("TripRider", fields: [riderId], references: [id])
+  rider         User?         @relation("TripRider", fields: [riderId], references: [id])
   ledgerEntries LedgerEntry[]
+}
+
+model LedgerEntry {
+  id        String   @id @default(uuid())
+  tripId    String
+  trip      Trip     @relation(fields: [tripId], references: [id])
+  entryType String
+  amount    Float
+  createdAt DateTime @default(now())
 }
 
 model Wallet {
@@ -79,12 +88,4 @@ model Notification {
   message   String
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
-}
-model LedgerEntry {
-  id          String   @id @default(uuid())
-  tripId      String
-  trip        Trip     @relation(fields: [tripId], references: [id])
-  entryType   String   // "GROSS_FARE", "COMMISSION", "RIDER_EARNING"
-  amount      Float
-  createdAt   DateTime @default(now())
 }
