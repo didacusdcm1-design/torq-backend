@@ -12,21 +12,22 @@ export class RiderRegistrationController {
     // 1. Use a fallback test user ID if not logged in
     const userId = req.user?.userId || req.user?.id || req.user?.sub || 'dfb0e62a-72b5-4899-8e1c-d78a4e60d9b6';
 
-    // 2. Check if user exists
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user) {
-      throw new NotFoundException('User not found. Please log in first.');
-    }
-
-    // 3. Update the User role (do NOT update email to avoid unique conflicts)
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { role: 'RIDER' }
+    // 2. Find or Create the user safely (for testing without login)
+    const phone = body.phone || "0700000000"; // Fallback phone
+    const user = await this.prisma.user.upsert({
+      where: { phone: phone },
+      update: { role: 'RIDER' },
+      create: { 
+        phone: phone, 
+        role: 'RIDER',
+        password: "password123",
+      }
     });
+    const finalUserId = user.id;
 
     // 4. Upsert the RiderProfile
     const profile = await this.prisma.riderProfile.upsert({
-      where: { userId: userId },
+      where: { userId: finalUserId },
       update: {
         fullName: body.fullName,
         nationalId: body.nationalId,
@@ -41,7 +42,7 @@ export class RiderRegistrationController {
         verificationStatus: 'PENDING_REVIEW',
       },
       create: {
-        userId: userId,
+        userId: finalUserId,
         fullName: body.fullName,
         nationalId: body.nationalId,
         licenseNumber: body.licenseNumber,
@@ -63,8 +64,9 @@ export class RiderRegistrationController {
   @Patch('approve/:userId')
   async approveRider(@Param('userId') userId: string) {
     return this.prisma.riderProfile.update({
-      where: { userId: userId },
+      where: { userId: finalUserId },
       data: { verificationStatus: 'APPROVED' },
     });
   }
 }
+
