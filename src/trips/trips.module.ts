@@ -15,19 +15,19 @@ import { ForceOnlineController } from './force-online.controller';
 @Module({
   imports: [PrismaModule],
   controllers: [
-    TripsController, 
-    LedgerController, 
-    WalletController, 
+    TripsController,
+    LedgerController,
+    WalletController,
     NotificationsController,
-    RiderRegistrationController // <-- Make sure this is here
+    RiderRegistrationController,
+    RiderStatusController,
+    ForceOnlineController
   ],
   providers: [
-    TripsService, 
-    EventsGateway, 
-    FareCalculatorService, 
+    TripsService,
+    EventsGateway,
+    FareCalculatorService,
     DispatchService
   ],
 })
 export class TripsModule {}
-
-
