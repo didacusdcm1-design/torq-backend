@@ -20,7 +20,7 @@ export class CustomerSeedController {
       const customer = await this.prisma.user.create({
         data: {
           phone: phone,
-          email: 'customer@torq.com',
+          email: 'newcustomer@torq.com',
           password: hashedPassword,
           role: 'CUSTOMER',
           wallet: { create: { balance: 0 } }
@@ -37,3 +37,4 @@ export class CustomerSeedController {
     }
   }
 }
+
