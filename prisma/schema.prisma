@@ -1,4 +1,4 @@
-﻿generator client {
+generator client {
   provider = "prisma-client-js"
 }
 
@@ -21,10 +21,10 @@ enum TripStatus {
 }
 
 model User {
+  id             String         @id @default(uuid())
   currentLat     Float?
   currentLng     Float?
-  isOnline       Boolean  @default(false)
-  id             String         @id @default(uuid())
+  isOnline       Boolean        @default(false)
   phone          String?        @unique
   email          String?        @unique
   password       String?
@@ -79,4 +79,3 @@ model Notification {
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
 }
-
