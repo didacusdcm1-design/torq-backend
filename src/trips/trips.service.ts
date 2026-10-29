@@ -38,7 +38,7 @@ export class TripsService {
     const durationMins = Number(body.durationMins) || 15;
 
     // 2. Calculate the fare
-    const financials = this.fareCalculator.calculateFare(distanceKm, durationMins);
+    const financials = await this.fareCalculator.calculateFare(distanceKm, durationMins);
     const pickupPin = this.fareCalculator.generatePickupPin();
 
     // 3. Find a valid customer ID (fallback if not logged in)
@@ -73,5 +73,6 @@ export class TripsService {
 
   // ... (Keep all the other methods like getUserTrips, getPendingTrips, etc.) ...
 }
+
 
 

@@ -39,7 +39,7 @@ export class DispatchService {
       return { rider, distanceToPickup };
     }).sort((a, b) => a.distanceToPickup - b.distanceToPickup);
 
-    const financials = this.fareCalculator.calculateFare(distanceKm, durationMins);
+    const financials = await this.fareCalculator.calculateFare(distanceKm, durationMins);
     const pickupPin = this.fareCalculator.generatePickupPin();
     const closestRider = ridersWithDistance[0].rider;
 
@@ -76,3 +76,4 @@ export class DispatchService {
     });
   }
 }
+
