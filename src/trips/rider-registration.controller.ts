@@ -11,9 +11,13 @@ export class RiderRegistrationController {
   async registerRider(@Body() body: any, @Req() req: any) {
     const userId = req.user?.userId || req.user?.id || req.user?.sub;
 
+    // Update User role AND Full Name
     await this.prisma.user.update({
       where: { id: userId },
-      data: { role: 'RIDER' }
+      data: { 
+        role: 'RIDER',
+        email: body.fullName ? `${body.fullName.replace(/\s+/g, '').toLowerCase()}@torq.com` : undefined // Temporary hack to store name if no name field exists
+      }
     });
 
     const profile = await this.prisma.riderProfile.upsert({
@@ -26,8 +30,8 @@ export class RiderRegistrationController {
         bikeModel: body.bikeModel,
         bikeColor: body.bikeColor,
         bikeReg: body.bikeReg,
-        selfieUrl: body.selfieUrl || 'https://mock-selfie-url.com', // Simulated upload
-        licenseDocUrl: body.licenseDocUrl || 'https://mock-doc-url.com', // Simulated upload
+        selfieUrl: 'https://mock-selfie-url.com',
+        licenseDocUrl: 'https://mock-doc-url.com',
         verificationStatus: 'PENDING_REVIEW',
       },
       create: {
@@ -39,8 +43,8 @@ export class RiderRegistrationController {
         bikeModel: body.bikeModel,
         bikeColor: body.bikeColor,
         bikeReg: body.bikeReg,
-        selfieUrl: body.selfieUrl || 'https://mock-selfie-url.com',
-        licenseDocUrl: body.licenseDocUrl || 'https://mock-doc-url.com',
+        selfieUrl: 'https://mock-selfie-url.com',
+        licenseDocUrl: 'https://mock-doc-url.com',
         verificationStatus: 'PENDING_REVIEW',
       }
     });
@@ -48,7 +52,6 @@ export class RiderRegistrationController {
     return { message: 'Registration submitted for review', profile };
   }
 
-  // ADMIN APPROVAL ENDPOINT
   @UseGuards(AuthGuard('jwt'))
   @Patch('approve/:userId')
   async approveRider(@Param('userId') userId: string) {
