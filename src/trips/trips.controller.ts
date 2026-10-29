@@ -9,12 +9,17 @@ import { AuthGuard } from '@nestjs/passport';
 export class TripsController {
   constructor(private readonly tripsService: TripsService) {}
 
-  // --- THIS IS THE MISSING ROUTE ---
   @Get()
   async getAllTrips(@Query('search') search?: string) {
     return this.tripsService.findAll(search);
   }
-  // ---------------------------------
+
+  // --- THE MISSING ENDPOINT ---
+  @Get(':id')
+  async getTripById(@Param('id') id: string) {
+    return this.tripsService.findOne(id);
+  }
+  // ----------------------------
 
   @UseGuards(AuthGuard('jwt'))
   @Post('request')
