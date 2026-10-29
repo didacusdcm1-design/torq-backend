@@ -1,4 +1,4 @@
-﻿import { Controller, Post, Body, Get, Param, Query } from '@nestjs/common';
+﻿import { Controller, Post, Body, Get, Param, Query, NotFoundException } from '@nestjs/common';
 import { TripsService } from './trips.service';
 import { DispatchService } from './dispatch.service';
 
@@ -22,8 +22,13 @@ export class TripsController {
   // TEMPORARILY PUBLIC FOR TESTING: No @UseGuards here!
   @Post('dispatch')
   async dispatchRide(@Body() body: any) {
-    // Fallback to the first customer in the database for testing
+    // Find the first customer in the database for testing
     const customer = await this.tripsService['prisma'].user.findFirst({ where: { role: 'CUSTOMER' } });
+    
+    // Prevent the null crash
+    if (!customer) {
+      throw new NotFoundException('No customers found in the database. Please register a customer first.');
+    }
     
     return this.dispatchService.dispatchRide(
       customer.id,
