@@ -6,10 +6,12 @@ import { EventsGateway } from '../events/events.gateway';
 import { FareCalculatorService } from './fare-calculator.service';
 import { DispatchService } from './dispatch.service';
 import { OnlineSeedController } from './online.seed';
+import { LedgerController } from './ledger.controller';
 
 @Module({
   imports: [PrismaModule],
-  controllers: [TripsController, OnlineSeedController],
+  controllers: [TripsController, OnlineSeedController, LedgerController],
   providers: [TripsService, EventsGateway, FareCalculatorService, DispatchService],
 })
 export class TripsModule {}
+
