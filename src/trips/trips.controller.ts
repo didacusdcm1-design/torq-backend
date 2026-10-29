@@ -16,10 +16,10 @@ export class TripsController {
     return this.tripsService.findOne(id);
   }
 
-  @UseGuards(AuthGuard('jwt'))
   @Post('request')
   create(@Body() body: any, @Req() req: any) {
     const userId = req.user.userId || req.user.id || req.user.sub;
     return this.tripsService.createTrip(body, userId);
   }
 }
+
