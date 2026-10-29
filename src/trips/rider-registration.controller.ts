@@ -1,4 +1,4 @@
-﻿import { Controller, Post, Body, UseGuards, Req, Patch, Param, NotFoundException } from '@nestjs/common';
+﻿import { Controller, Post, Body, UseGuards, Req, Patch, Param, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -6,13 +6,11 @@ import { AuthGuard } from '@nestjs/passport';
 export class RiderRegistrationController {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Temporarily public for testing
   @Post('register')
   async registerRider(@Body() body: any, @Req() req: any) {
     const userId = req.user?.userId || req.user?.id || req.user?.sub || 'dfb0e62a-72b5-4899-8e1c-d78a4e60d9b6';
     const phone = body.phone || "0700000000"; 
     
-    // Find or create user
     const user = await this.prisma.user.upsert({
       where: { phone: phone },
       update: { role: 'RIDER' },
@@ -39,23 +37,48 @@ export class RiderRegistrationController {
     return { message: 'Registration submitted', profile };
   }
 
-  // FIX: Use upsert for approve to prevent crashes
   @Patch('approve/:userId')
   async approveRider(@Param('userId') userId: string) {
-    return this.prisma.riderProfile.upsert({
-      where: { userId: userId },
-      update: { verificationStatus: 'APPROVED' },
-      create: { userId: userId, verificationStatus: 'APPROVED' }
-    });
+    try {
+      // 1. Try to find the profile first
+      const existing = await this.prisma.riderProfile.findUnique({ where: { userId } });
+      
+      // 2. If it doesn't exist, create it as APPROVED
+      if (!existing) {
+        return await this.prisma.riderProfile.create({
+          data: { userId: userId, verificationStatus: 'APPROVED' }
+        });
+      }
+
+      // 3. If it exists, update it
+      return await this.prisma.riderProfile.update({
+        where: { userId: userId },
+        data: { verificationStatus: 'APPROVED' }
+      });
+    } catch (error) {
+      console.error("Approve Error:", error);
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
-  // FIX: Use upsert for reject to prevent crashes
   @Patch('reject/:userId')
   async rejectRider(@Param('userId') userId: string, @Body('reason') reason: string) {
-    return this.prisma.riderProfile.upsert({
-      where: { userId: userId },
-      update: { verificationStatus: 'REJECTED' },
-      create: { userId: userId, verificationStatus: 'REJECTED' }
-    });
+    try {
+      const existing = await this.prisma.riderProfile.findUnique({ where: { userId } });
+      
+      if (!existing) {
+        return await this.prisma.riderProfile.create({
+          data: { userId: userId, verificationStatus: 'REJECTED' }
+        });
+      }
+
+      return await this.prisma.riderProfile.update({
+        where: { userId: userId },
+        data: { verificationStatus: 'REJECTED' }
+      });
+    } catch (error) {
+      console.error("Reject Error:", error);
+      throw new InternalServerErrorException(error.message);
+    }
   }
 }
