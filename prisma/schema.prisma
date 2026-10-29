@@ -4,90 +4,7 @@
 
 datasource db {
   provider = "postgresql"
-}
-
-model User {
-  id            String        @id @default(uuid())
-  phone         String?       @unique
-  email         String?       @unique
-  password      String?
-  otpCode       String?
-  role          Role          @default(CUSTOMER)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  riderProfile  RiderProfile?
-  customerTrips Trip[]        @relation("TripCustomer")
-  riderTrips    Trip[]        @relation("TripRider")
-  wallet        Wallet?
-  notifications Notification[]
-}
-
-model Trip {
-  pickupPin     String?   @default("0000")
-  distanceKm    Float?    @default(0)
-  durationMins  Int?      @default(0)
-  id            String      @id @default(uuid())
-  pickupLat     Float
-  pickupLng     Float
-  dropoffLat    Float
-  dropoffLng    Float
-  estimatedFare Float
-  finalFare     Float?
-  status        TripStatus  @default(REQUESTED)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  customerId    String
-  customer      User        @relation("TripCustomer", fields: [customerId], references: [id])
-  riderId       String?
-  rider         User?       @relation("TripRider", fields: [riderId], references: [id])
-}
-
-model RiderProfile {
-  id                String   @id @default(uuid())
-  userId            String   @unique
-  user              User     @relation(fields: [userId], references: [id])
-  fullName          String?
-  dateOfBirth       String?
-  nationalIdNumber  String?
-  emergencyContact  String?
-  motorcycleReg     String?
-  motorcycleMake    String?
-  motorcycleModel   String?
-  insuranceExpiry   String?
-  idDocumentUrl     String?
-  licenseDocumentUrl String?
-  insuranceDocumentUrl String?
-  selfieUrl         String?
-  verificationStatus String  @default("PENDING")
-  rejectionReason   String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-}
-
-model Wallet {
-  id              String   @id @default(uuid())
-  userId          String   @unique
-  user            User     @relation(fields: [userId], references: [id])
-  balance         Float    @default(0)
-  pendingEarnings Float    @default(0)
-}
-
-model Notification {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  title     String
-  message   String
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
-}
-
-model PricingRule {
-  id            String   @id @default(uuid())
-  baseFare      Float    @default(50)
-  perKmRate     Float    @default(20)
-  commission    Float    @default(0.15)
-  updatedAt     DateTime @updatedAt
+  url      = env("DATABASE_URL")
 }
 
 enum Role {
@@ -99,19 +16,64 @@ enum Role {
 enum TripStatus {
   REQUESTED
   ACCEPTED
-  ARRIVED
   IN_PROGRESS
   COMPLETED
   CANCELLED
 }
-model Rider {
-  id        String   @id @default(uuid())
-  firstName String
-  lastName  String
-  email     String   @unique
-  phone     String
-  status    String   @default("PENDING")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+model User {
+  id             String         @id @default(uuid())
+  phone          String?        @unique
+  email          String?        @unique
+  password       String?
+  otpCode        String?
+  role           Role           @default(CUSTOMER)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  riderProfile   RiderProfile?
+  customerTrips  Trip[]         @relation("TripCustomer")
+  riderTrips     Trip[]         @relation("TripRider")
+  wallet         Wallet?
+  notifications  Notification[]
 }
 
+model RiderProfile {
+  id        String @id @default(uuid())
+  userId    String @unique
+  user      User   @relation(fields: [userId], references: [id])
+}
+
+model Trip {
+  id            String     @id @default(uuid())
+  pickupPin     String?    @default("0000")
+  distanceKm    Float?     @default(0)
+  durationMins  Int?       @default(0)
+  pickupLat     Float
+  pickupLng     Float
+  dropoffLat    Float
+  dropoffLng    Float
+  estimatedFare Float
+  finalFare     Float?
+  status        TripStatus @default(REQUESTED)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  customerId    String
+  customer      User       @relation("TripCustomer", fields: [customerId], references: [id])
+  riderId       String?
+  rider         User?      @relation("TripRider", fields: [riderId], references: [id])
+}
+
+model Wallet {
+  id      String  @id @default(uuid())
+  userId  String  @unique
+  balance Float   @default(0)
+  user    User    @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  message   String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
