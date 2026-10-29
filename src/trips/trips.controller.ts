@@ -1,4 +1,4 @@
-﻿import { Controller, Post, Body, Get, Param, Query, NotFoundException } from '@nestjs/common';
+﻿import { Controller, Post, Body, Get, Param, Query, NotFoundException, UseGuards, Req } from '@nestjs/common';
 import { TripsService } from './trips.service';
 import { DispatchService } from './dispatch.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -20,20 +20,14 @@ export class TripsController {
     return this.tripsService.findOne(id);
   }
 
-  // TEMPORARILY PUBLIC FOR TESTING: No @UseGuards here!
+  // SECURED AGAIN: The AuthGuard is back. Only logged-in users can dispatch.
   @UseGuards(AuthGuard('jwt'))
   @Post('dispatch')
-  async dispatchRide(@Body() body: any) {
-    // Find the first customer in the database for testing
-    const customer = await this.tripsService['prisma'].user.findFirst({ where: { role: 'CUSTOMER' } });
-    
-    // Prevent the null crash
-    if (!customer) {
-      throw new NotFoundException('No customers found in the database. Please register a customer first.');
-    }
+  async dispatchRide(@Body() body: any, @Req() req: any) {
+    const userId = req.user?.userId || req.user?.id || req.user?.sub;
     
     return this.dispatchService.dispatchRide(
-      customer.id,
+      userId,
       Number(body.pickupLat),
       Number(body.pickupLng),
       Number(body.dropoffLat),
@@ -43,5 +37,3 @@ export class TripsController {
     );
   }
 }
-
-
