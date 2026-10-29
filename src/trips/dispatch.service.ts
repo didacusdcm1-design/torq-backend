@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+﻿import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { FareCalculatorService } from './fare-calculator.service';
 
@@ -9,9 +9,8 @@ export class DispatchService {
     private fareCalculator: FareCalculatorService
   ) {}
 
-  // Haversine formula to calculate distance in KM between two coordinates
   private calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-    const R = 6371; // Earth's radius in KM
+    const R = 6371; 
     const dLat = this.deg2rad(lat2 - lat1);
     const dLon = this.deg2rad(lon2 - lon1);
     const a =
@@ -28,12 +27,7 @@ export class DispatchService {
 
   async dispatchRide(customerId: string, pickupLat: number, pickupLng: number, dropoffLat: number, dropoffLng: number, distanceKm: number, durationMins: number) {
     const onlineRiders = await this.prisma.user.findMany({
-      where: {
-        role: 'RIDER',
-        isOnline: true,
-        currentLat: { not: null },
-        currentLng: { not: null },
-      },
+      where: { role: 'RIDER', isOnline: true, currentLat: { not: null }, currentLng: { not: null } },
     });
 
     if (onlineRiders.length === 0) {
@@ -41,10 +35,7 @@ export class DispatchService {
     }
 
     const ridersWithDistance = onlineRiders.map((rider) => {
-      const distanceToPickup = this.calculateDistance(
-        pickupLat, pickupLng,
-        rider.currentLat!, rider.currentLng!
-      );
+      const distanceToPickup = this.calculateDistance(pickupLat, pickupLng, rider.currentLat!, rider.currentLng!);
       return { rider, distanceToPickup };
     }).sort((a, b) => a.distanceToPickup - b.distanceToPickup);
 
@@ -52,31 +43,36 @@ export class DispatchService {
     const pickupPin = this.fareCalculator.generatePickupPin();
     const closestRider = ridersWithDistance[0].rider;
 
-    const trip = await this.prisma.trip.create({
-      data: {
-        pickupLat,
-        pickupLng,
-        dropoffLat,
-        dropoffLng,
-        distanceKm,
-        durationMins,
-        estimatedFare: financials.grossFare,
-        finalFare: financials.grossFare,
-        pickupPin,
-        customerId,
-        riderId: closestRider.id,
-        status: 'ACCEPTED',
-      },
-    });
+    // Use a transaction to ensure the trip and ledger are created together
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Create the Trip
+      const trip = await tx.trip.create({
+        data: {
+          pickupLat, pickupLng, dropoffLat, dropoffLng, distanceKm, durationMins,
+          estimatedFare: financials.grossFare,
+          finalFare: financials.grossFare,
+          pickupPin,
+          customerId,
+          riderId: closestRider.id,
+          status: 'ACCEPTED', 
+        },
+      });
 
-    return {
-      message: 'Trip dispatched successfully',
-      trip,
-      assignedRider: {
-        id: closestRider.id,
-        distanceToPickupKm: Math.round(ridersWithDistance[0].distanceToPickup * 100) / 100,
-      },
-      financials
-    };
+      // 2. Create the Ledger Entries
+      await tx.ledgerEntry.createMany({
+        data: [
+          { tripId: trip.id, entryType: 'GROSS_FARE', amount: financials.grossFare },
+          { tripId: trip.id, entryType: 'COMMISSION', amount: financials.commission },
+          { tripId: trip.id, entryType: 'RIDER_EARNING', amount: financials.riderEarnings },
+        ]
+      });
+
+      return {
+        message: 'Trip dispatched and ledger updated successfully',
+        trip,
+        assignedRider: { id: closestRider.id, distanceToPickupKm: Math.round(ridersWithDistance[0].distanceToPickup * 100) / 100 },
+        financials
+      };
+    });
   }
 }

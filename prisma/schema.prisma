@@ -1,4 +1,4 @@
-generator client {
+﻿generator client {
   provider = "prisma-client-js"
 }
 
@@ -63,6 +63,7 @@ model Trip {
   customer      User       @relation("TripCustomer", fields: [customerId], references: [id])
   riderId       String?
   rider         User?      @relation("TripRider", fields: [riderId], references: [id])
+  ledgerEntries LedgerEntry[]
 }
 
 model Wallet {
@@ -78,4 +79,12 @@ model Notification {
   message   String
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
+}
+model LedgerEntry {
+  id          String   @id @default(uuid())
+  tripId      String
+  trip        Trip     @relation(fields: [tripId], references: [id])
+  entryType   String   // "GROSS_FARE", "COMMISSION", "RIDER_EARNING"
+  amount      Float
+  createdAt   DateTime @default(now())
 }
