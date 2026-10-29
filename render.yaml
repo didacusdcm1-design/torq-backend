@@ -1,0 +1,7 @@
+﻿services:
+  - type: web
+    name: torq-seed-job
+    runtime: node
+    rootDir: services/api
+    buildCommand: npm install --ignore-scripts
+    startCommand: node seed-server.js
