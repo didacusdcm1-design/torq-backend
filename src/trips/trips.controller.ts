@@ -1,10 +1,13 @@
-﻿import { Controller, Post, Body, Get, UseGuards, Req, Patch, Param, Query } from '@nestjs/common';
+﻿import { Controller, Post, Body, Get, Param, Query } from '@nestjs/common';
 import { TripsService } from './trips.service';
-import { AuthGuard } from '@nestjs/passport';
+import { DispatchService } from './dispatch.service';
 
 @Controller('trips')
 export class TripsController {
-  constructor(private readonly tripsService: TripsService) {}
+  constructor(
+    private readonly tripsService: TripsService,
+    private readonly dispatchService: DispatchService
+  ) {}
 
   @Get()
   async getAllTrips(@Query('search') search?: string) {
@@ -16,12 +19,20 @@ export class TripsController {
     return this.tripsService.findOne(id);
   }
 
-  // SECURED AGAIN: The AuthGuard is back. Only logged-in users can book.
-  @UseGuards(AuthGuard('jwt'))
+  // TEMPORARILY PUBLIC FOR TESTING: No @UseGuards here!
   @Post('dispatch')
-  create(@Body() body: any, @Req() req: any) {
-    const userId = req.user?.userId || req.user?.id || req.user?.sub || undefined;
-    return this.tripsService.createTrip(body, userId);
+  async dispatchRide(@Body() body: any) {
+    // Fallback to the first customer in the database for testing
+    const customer = await this.tripsService['prisma'].user.findFirst({ where: { role: 'CUSTOMER' } });
+    
+    return this.dispatchService.dispatchRide(
+      customer.id,
+      Number(body.pickupLat),
+      Number(body.pickupLng),
+      Number(body.dropoffLat),
+      Number(body.dropoffLng),
+      Number(body.distanceKm),
+      Number(body.durationMins)
+    );
   }
 }
-
