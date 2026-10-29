@@ -18,9 +18,10 @@ export class TripsController {
 
   // SECURED AGAIN: The AuthGuard is back. Only logged-in users can book.
   @UseGuards(AuthGuard('jwt'))
-  @Post('request')
+  @Post('dispatch')
   create(@Body() body: any, @Req() req: any) {
     const userId = req.user?.userId || req.user?.id || req.user?.sub || undefined;
     return this.tripsService.createTrip(body, userId);
   }
 }
+
