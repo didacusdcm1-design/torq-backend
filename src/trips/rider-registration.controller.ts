@@ -67,4 +67,15 @@ export class RiderRegistrationController {
       data: { verificationStatus: 'APPROVED' },
     });
   }
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('reject/:userId')
+  async rejectRider(@Param('userId') userId: string, @Body('reason') reason: string) {
+    return this.prisma.riderProfile.update({
+      where: { userId: userId },
+      data: { 
+        verificationStatus: 'REJECTED',
+        // In a production app, you would save the reason to an AuditLog table
+      },
+    });
+  }
 }
