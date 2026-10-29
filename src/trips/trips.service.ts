@@ -28,30 +28,40 @@ export class TripsService {
   }
 
   // --- UPDATED CREATE TRIP LOGIC ---
-  async createTrip(body: any, customerId: string) {
-    // 1. Get distance and duration from the request body
-    const distanceKm = body.distanceKm || 5; // Default to 5km if not provided (for testing)
-    const durationMins = body.durationMins || 15; // Default to 15 mins
+    async createTrip(body: any, customerId?: string) {
+    // 1. Get distance and duration
+    const distanceKm = Number(body.distanceKm) || 5;
+    const durationMins = Number(body.durationMins) || 15;
 
-    // 2. Calculate the fare on the backend (Do NOT trust frontend fares)
+    // 2. Calculate the fare
     const financials = this.fareCalculator.calculateFare(distanceKm, durationMins);
-    
-    // 3. Generate the Pickup PIN
     const pickupPin = this.fareCalculator.generatePickupPin();
+
+    // 3. Find a valid customer ID (fallback if not logged in)
+    let finalCustomerId = customerId;
+    if (!finalCustomerId) {
+      const firstCustomer = await this.prisma.user.findFirst({
+        where: { role: 'CUSTOMER' }
+      });
+      if (!firstCustomer) {
+        throw new Error("No customers exist in the database. Please register one first.");
+      }
+      finalCustomerId = firstCustomer.id;
+    }
 
     // 4. Save to database
     return this.prisma.trip.create({
       data: {
-        pickupLat: body.pickupLat,
-        pickupLng: body.pickupLng,
-        dropoffLat: body.dropoffLat,
-        dropoffLng: body.dropoffLng,
+        pickupLat: Number(body.pickupLat),
+        pickupLng: Number(body.pickupLng),
+        dropoffLat: Number(body.dropoffLat),
+        dropoffLng: Number(body.dropoffLng),
         estimatedFare: financials.grossFare,
-        finalFare: financials.grossFare, // For now, final = estimated
+        finalFare: financials.grossFare,
         distanceKm: distanceKm,
         durationMins: durationMins,
         pickupPin: pickupPin,
-        customerId: customerId,
+        customerId: finalCustomerId,
         status: 'REQUESTED',
       },
     });
@@ -59,3 +69,4 @@ export class TripsService {
 
   // ... (Keep all the other methods like getUserTrips, getPendingTrips, etc.) ...
 }
+
