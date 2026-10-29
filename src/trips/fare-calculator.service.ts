@@ -1,27 +1,31 @@
 ﻿import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class FareCalculatorService {
-  // TORQ Business Rules (These should eventually be fetched from a Pricing table in the DB)
-  private readonly BASE_FARE = 50; // KES
-  private readonly PER_KM_RATE = 30; // KES
-  private readonly PER_MINUTE_RATE = 5; // KES
-  private readonly COMMISSION_RATE = 0.15; // 15%
+  constructor(private prisma: PrismaService) {}
 
-  calculateFare(distanceKm: number, durationMins: number) {
-    const distanceCost = distanceKm * this.PER_KM_RATE;
-    const timeCost = durationMins * this.PER_MINUTE_RATE;
+  // Helper to get rules (fallback to defaults if DB is empty)
+  private async getRules() {
+    let rules = await this.prisma.pricingRule.findFirst();
+    if (!rules) {
+      rules = await this.prisma.pricingRule.create({
+        data: { baseFare: 50, perKmRate: 30, perMinuteRate: 5, commissionRate: 0.15 }
+      });
+    }
+    return rules;
+  }
+
+  async calculateFare(distanceKm: number, durationMins: number) {
+    const rules = await this.getRules();
     
-    // 1. Calculate Gross Fare
-    const grossFare = this.BASE_FARE + distanceCost + timeCost;
+    const distanceCost = distanceKm * rules.perKmRate;
+    const timeCost = durationMins * rules.perMinuteRate;
+    const grossFare = rules.baseFare + distanceCost + timeCost;
     
-    // 2. Calculate TORQ Commission
-    const commission = grossFare * this.COMMISSION_RATE;
-    
-    // 3. Calculate Rider Earnings
+    const commission = grossFare * rules.commissionRate;
     const riderEarnings = grossFare - commission;
 
-    // Round to 2 decimal places for currency
     return {
       grossFare: Math.round(grossFare * 100) / 100,
       commission: Math.round(commission * 100) / 100,
@@ -30,7 +34,6 @@ export class FareCalculatorService {
   }
 
   generatePickupPin(): string {
-    // Generates a random 4-digit PIN (e.g., "4921")
     return Math.floor(1000 + Math.random() * 9000).toString();
   }
 }

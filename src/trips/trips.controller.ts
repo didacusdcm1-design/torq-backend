@@ -1,6 +1,7 @@
 ﻿import { Controller, Post, Body, Get, Param, Query, NotFoundException } from '@nestjs/common';
 import { TripsService } from './trips.service';
 import { DispatchService } from './dispatch.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('trips')
 export class TripsController {
@@ -20,6 +21,7 @@ export class TripsController {
   }
 
   // TEMPORARILY PUBLIC FOR TESTING: No @UseGuards here!
+  @UseGuards(AuthGuard('jwt'))
   @Post('dispatch')
   async dispatchRide(@Body() body: any) {
     // Find the first customer in the database for testing
@@ -41,3 +43,4 @@ export class TripsController {
     );
   }
 }
+

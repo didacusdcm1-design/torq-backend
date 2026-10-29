@@ -1,20 +1,36 @@
-﻿import { Controller, Get, Post, Body } from '@nestjs/common';
+﻿import { Controller, Get, Patch, Body, UseGuards } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('pricing')
 export class PricingController {
+  constructor(private readonly prisma: PrismaService) {}
+
   @Get()
-  getPricing() {
-    // Return hardcoded default pricing until we build a PricingRule model
-    return {
-      baseFare: 50,
-      perKmRate: 30,
-      perMinuteRate: 5,
-      commissionRate: 0.15
-    };
+  async getPricing() {
+    let rules = await this.prisma.pricingRule.findFirst();
+    if (!rules) {
+      rules = await this.prisma.pricingRule.create({
+        data: { baseFare: 50, perKmRate: 30, perMinuteRate: 5, commissionRate: 0.15 }
+      });
+    }
+    return rules;
   }
 
-  @Post()
-  updatePricing(@Body() body: any) {
-    return { message: 'Pricing updated', data: body };
+  // SECURED: Only logged-in admins can update pricing
+  @UseGuards(AuthGuard('jwt'))
+  @Patch()
+  async updatePricing(@Body() body: any) {
+    const rules = await this.prisma.pricingRule.findFirst();
+    
+    return this.prisma.pricingRule.update({
+      where: { id: rules.id },
+      data: {
+        baseFare: Number(body.baseFare),
+        perKmRate: Number(body.perKmRate),
+        perMinuteRate: Number(body.perMinuteRate),
+        commissionRate: Number(body.commissionRate),
+      },
+    });
   }
 }

@@ -1,4 +1,4 @@
-generator client {
+﻿generator client {
   provider = "prisma-client-js"
 }
 
@@ -64,6 +64,15 @@ model Trip {
   riderId       String?
   rider         User?         @relation("TripRider", fields: [riderId], references: [id])
   ledgerEntries LedgerEntry[]
+}
+
+model PricingRule {
+  id             String   @id @default(uuid())
+  baseFare       Float    @default(50)
+  perKmRate      Float    @default(30)
+  perMinuteRate  Float    @default(5)
+  commissionRate Float    @default(0.15)
+  updatedAt      DateTime @updatedAt
 }
 
 model LedgerEntry {
