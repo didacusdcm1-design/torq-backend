@@ -18,10 +18,14 @@ export class TripsService {
     });
   }
 
-  async findOne(id: string) {
+    async findOne(id: string) {
     const trip = await this.prisma.trip.findUnique({
       where: { id },
-      include: { customer: true, rider: true },
+      include: { 
+        customer: true, 
+        rider: true,
+        ledgerEntries: true // <-- THIS IS THE MISSING PIECE
+      },
     });
     if (!trip) throw new NotFoundException('Trip not found');
     return trip;
@@ -69,4 +73,5 @@ export class TripsService {
 
   // ... (Keep all the other methods like getUserTrips, getPendingTrips, etc.) ...
 }
+
 
