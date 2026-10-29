@@ -9,6 +9,7 @@ import { LedgerController } from './ledger.controller';
 import { WalletController } from './wallet.controller';
 import { NotificationsController } from './notifications.controller';
 import { RiderRegistrationController } from './rider-registration.controller';
+import { RiderStatusController } from './rider-status.controller';
 
 @Module({
   imports: [PrismaModule],
@@ -27,3 +28,4 @@ import { RiderRegistrationController } from './rider-registration.controller';
   ],
 })
 export class TripsModule {}
+
