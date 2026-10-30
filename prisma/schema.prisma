@@ -196,13 +196,25 @@ model Staff {
   id        String   @id @default(uuid())
   name      String
   email     String   @unique
-  role      String   @default("SUPPORT_OFFICER") // SUPER_ADMIN, OPERATIONS_MANAGER, FINANCE_OFFICER, SUPPORT_OFFICER
+  role      String   @default("SUPPORT_OFFICER")
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 }
+
 model RolePermission {
   id          String   @id @default(uuid())
   roleId      String   @unique
-  permissions String   // Comma-separated list or JSON (e.g., "view_riders,approve_riders")
+  permissions String
   updatedAt   DateTime @updatedAt
+}
+
+model Payment {
+  id              String   @id @default(uuid())
+  transactionRef  String   @unique
+  tripId          String?
+  amount          Float
+  method          String   // MPESA, CASH, CARD
+  status          String   @default("PENDING") // PENDING, SUCCESSFUL, FAILED, REFUNDED
+  providerRef     String?
+  createdAt       DateTime @default(now())
 }

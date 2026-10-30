@@ -27,6 +27,7 @@ import { SystemHealthController } from './system-health.controller';
 import { SettingsController } from './settings.controller';
 import { StaffController } from './staff.controller';
 import { RolesController } from './roles.controller';
+import { PaymentsController } from './payments.controller';
 
 @Module({
   imports: [PrismaModule],
@@ -36,7 +37,8 @@ import { RolesController } from './roles.controller';
     TripAcceptController, TripCompletionController, TripCancellationController,
     CleanupTripsController, FleetController, ServiceAreaController, PromotionsController,
     RatingsController, SupportController, SafetyController, DisputesController,
-    AuditLogsController, SystemHealthController, SettingsController, StaffController, RolesController
+    AuditLogsController, SystemHealthController, SettingsController, StaffController, 
+    RolesController, PaymentsController
   ],
   providers: [TripsService, EventsGateway, FareCalculatorService, DispatchService],
 })
