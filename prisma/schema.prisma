@@ -193,7 +193,7 @@ model SystemSetting {
 }
 
 model Staff {
-  password  String
+  password  String?
   id        String   @id @default(uuid())
   name      String
   email     String   @unique
