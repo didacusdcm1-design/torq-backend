@@ -34,7 +34,8 @@ import { PromotionsController } from './promotions.controller';
     TripCancellationController,
     CleanupTripsController,
     FleetController,
-    ServiceAreaController
+    ServiceAreaController,
+    PromotionsController
   ],
   providers: [
     TripsService,
@@ -44,4 +45,3 @@ import { PromotionsController } from './promotions.controller';
   ],
 })
 export class TripsModule {}
-
