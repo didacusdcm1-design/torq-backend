@@ -1,33 +1,23 @@
-﻿import { Controller, Post, Body, UseGuards, Req, Patch, Param, UploadedFile, UseInterceptors } from '@nestjs/common';
+﻿import { Controller, Post, Body, Patch, Param, Get } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { AuthGuard } from '@nestjs/passport';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
 import * as bcrypt from 'bcrypt';
 
 @Controller('riders')
 export class RiderRegistrationController {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Upload endpoint for images
-  @Post('upload')
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: './uploads',
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
-      },
-    }),
-  }))
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
-    return { url: `https://torq-backend.onrender.com/uploads/${file.filename}` };
+  @Get()
+  async getAllRiders() {
+    return this.prisma.user.findMany({
+      where: { role: 'RIDER' },
+      include: { riderProfile: true },
+      orderBy: { createdAt: 'desc' }
+    });
   }
 
   @Post('register')
   async registerRider(@Body() body: any) {
-    const phone = body.phone || "0700000000"; 
+    const phone = body.phone;
     const tempPassword = `TORQ-${Math.floor(1000 + Math.random() * 9000)}`;
     const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
@@ -59,7 +49,25 @@ export class RiderRegistrationController {
     return { message: 'Registration submitted', profile, temporaryPassword: tempPassword };
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  // --- THE MISSING ENDPOINTS ---
+  @Patch('approve/:userId')
+  async approveRider(@Param('userId') userId: string) {
+    return this.prisma.riderProfile.upsert({
+      where: { userId: userId },
+      update: { verificationStatus: 'APPROVED' },
+      create: { userId: userId, verificationStatus: 'APPROVED' }
+    });
+  }
+
+  @Patch('reject/:userId')
+  async rejectRider(@Param('userId') userId: string, @Body('reason') reason: string) {
+    return this.prisma.riderProfile.upsert({
+      where: { userId: userId },
+      update: { verificationStatus: 'REJECTED' },
+      create: { userId: userId, verificationStatus: 'REJECTED' }
+    });
+  }
+
   @Patch(':id/password')
   async resetPassword(@Param('id') id: string, @Body('password') newPassword: string) {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
