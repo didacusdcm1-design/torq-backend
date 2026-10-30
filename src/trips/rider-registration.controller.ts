@@ -1,8 +1,5 @@
-import { Controller, Post, Body, Patch, Param, Get, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Post, Body, Patch, Param, Get } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
 import * as bcrypt from 'bcrypt';
 
 @Controller('riders')
@@ -16,21 +13,6 @@ export class RiderRegistrationController {
       include: { riderProfile: true },
       orderBy: { createdAt: 'desc' }
     });
-  }
-
-  @Post('upload')
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: './uploads',
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
-      },
-    }),
-  }))
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
-    if (!file) throw new Error('File not uploaded');
-    return { url: `https://torq-backend.onrender.com/uploads/${file.filename}` };
   }
 
   @Post('register')
@@ -51,6 +33,7 @@ export class RiderRegistrationController {
         fullName: body.fullName, nationalId: body.nationalId, licenseNumber: body.licenseNumber,
         emergencyContact: body.emergencyContact, bikeMake: body.bikeMake, bikeModel: body.bikeModel,
         bikeColor: body.bikeColor, bikeReg: body.bikeReg,
+        // Save the base64 strings
         selfieUrl: body.selfieUrl, licenseDocUrl: body.licenseDocUrl, insuranceDocUrl: body.insuranceDocUrl, bikePhotoUrl: body.bikePhotoUrl,
         verificationStatus: 'PENDING_REVIEW',
       },
