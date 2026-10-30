@@ -16,6 +16,7 @@ import { TripCompletionController } from './trip-completion.controller';
 import { TripCancellationController } from './trip-cancellation.controller';
 import { CleanupTripsController } from './cleanup-trips.controller';
 import { FleetController } from './fleet.controller';
+import { ServiceAreaController } from './service-area.controller';
 
 @Module({
   imports: [PrismaModule],
@@ -41,3 +42,4 @@ import { FleetController } from './fleet.controller';
   ],
 })
 export class TripsModule {}
+
