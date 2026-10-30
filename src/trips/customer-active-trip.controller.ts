@@ -11,7 +11,6 @@ export class CustomerActiveTripController {
   async getCustomerActiveTrip(@Req() req: any) {
     const userId = req.user?.userId || req.user?.id || req.user?.sub;
     
-    // Find a trip that is not completed or cancelled
     const trip = await this.prisma.trip.findFirst({
       where: {
         customerId: userId,
