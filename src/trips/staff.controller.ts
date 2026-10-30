@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 export class StaffController {
   constructor(private readonly prisma: PrismaService) {}
 
+  @UseGuards(AuthGuard('jwt'))
   @Get()
   async getStaff() {
     return this.prisma.staff.findMany({
@@ -15,6 +16,7 @@ export class StaffController {
     });
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Post()
   async createStaff(@Body() body: any) {
     const hashedPassword = await bcrypt.hash(body.password, 10);
@@ -23,18 +25,12 @@ export class StaffController {
     });
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Patch(':id/toggle')
   async toggleStaff(@Param('id') id: string) {
     const staff = await this.prisma.staff.findUnique({ where: { id } });
     if (!staff) throw new Error('Staff not found');
     return this.prisma.staff.update({ where: { id }, data: { isActive: !staff.isActive } });
-  }
-
-  @UseGuards(AuthGuard('jwt'))
-  @Get(':id/password')
-  async getStaffPassword(@Param('id') id: string) {
-    const staff = await this.prisma.staff.findUnique({ where: { id } });
-    return { passwordHash: staff?.password };
   }
 
   @UseGuards(AuthGuard('jwt'))

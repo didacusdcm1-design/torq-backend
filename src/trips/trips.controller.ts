@@ -1,4 +1,4 @@
-﻿import { Controller, Post, Body, Get, UseGuards, Req, Patch, Param, Query } from '@nestjs/common';
+﻿import { Controller, Post, Body, Get, UseGuards, Req, Patch, Param, Query, NotFoundException } from '@nestjs/common';
 import { TripsService } from './trips.service';
 import { DispatchService } from './dispatch.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -9,28 +9,21 @@ export class TripsController {
   constructor(
     private readonly tripsService: TripsService,
     private readonly dispatchService: DispatchService,
-    private readonly prisma: PrismaService // <-- INJECTED HERE
+    private readonly prisma: PrismaService
   ) {}
 
-    @Get()
+  @Get()
   async getAllTrips(@Query('search') search?: string) {
     return this.tripsService.findAll(search);
   }
 
   @Get('rider/active')
   async getRiderActiveTrips(@Req() req: any) {
-    // Fallback to the first rider for testing
     const rider = await this.prisma.user.findFirst({ where: { role: 'RIDER' } });
     if (!rider) return [];
-
     return this.prisma.trip.findMany({
-      where: { 
-        riderId: rider.id,
-        status: { in: ['ACCEPTED', 'IN_PROGRESS'] }
-      },
-      include: {
-        customer: true
-      }
+      where: { riderId: rider.id, status: { in: ['ACCEPTED', 'IN_PROGRESS'] } },
+      include: { customer: true }
     });
   }
 
@@ -39,12 +32,11 @@ export class TripsController {
     return this.tripsService.findOne(id);
   }
 
-  // SECURED: The AuthGuard is back. Only logged-in users can dispatch.
+  // SECURED: Only authenticated customers can dispatch
   @UseGuards(AuthGuard('jwt'))
   @Post('dispatch')
   async dispatchRide(@Body() body: any, @Req() req: any) {
     const userId = req.user?.userId || req.user?.id || req.user?.sub;
-    
     return this.dispatchService.dispatchRide(
       userId,
       Number(body.pickupLat),
@@ -54,17 +46,5 @@ export class TripsController {
       Number(body.distanceKm),
       Number(body.durationMins)
     );
-  }
-  @Get('rider/history')
-  async getRiderHistory(@Req() req: any) {
-    // Fallback to the first rider for testing
-    const rider = await this.prisma.user.findFirst({ where: { role: 'RIDER' } });
-    if (!rider) return [];
-
-    return this.prisma.trip.findMany({
-      where: { riderId: rider.id },
-      orderBy: { createdAt: 'desc' },
-      include: { customer: true }
-    });
   }
 }

@@ -1,10 +1,12 @@
-﻿import { Controller, Patch, Param, Body, InternalServerErrorException } from '@nestjs/common';
+﻿import { Controller, Patch, Param, Body, UseGuards, Req, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('trips')
 export class TripCancellationController {
   constructor(private readonly prisma: PrismaService) {}
 
+  @UseGuards(AuthGuard('jwt'))
   @Patch('cancel/:id')
   async cancelTrip(@Param('id') id: string, @Body() body: { cancelledBy: string, reason: string, note?: string }) {
     try {
