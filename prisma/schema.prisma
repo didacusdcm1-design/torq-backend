@@ -1,4 +1,4 @@
-generator client {
+﻿generator client {
   provider = "prisma-client-js"
 }
 
@@ -59,6 +59,7 @@ model RiderProfile {
 }
 
 model Trip {
+  rating        Int?
   id            String        @id @default(uuid())
   pickupPin     String?       @default("0000")
   distanceKm    Float?        @default(0)
