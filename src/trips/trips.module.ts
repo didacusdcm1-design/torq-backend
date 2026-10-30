@@ -14,6 +14,7 @@ import { ForceOnlineController } from './force-online.controller';
 import { TripAcceptController } from './trip-accept.controller';
 import { TripCompletionController } from './trip-completion.controller';
 import { ForceCompleteController } from './force-complete.controller';
+import { TripCancellationController } from './trip-cancellation.controller';
 
 @Module({
   imports: [PrismaModule],
@@ -36,4 +37,5 @@ import { ForceCompleteController } from './force-complete.controller';
   ],
 })
 export class TripsModule {}
+
 

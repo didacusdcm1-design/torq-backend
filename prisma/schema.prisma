@@ -59,6 +59,9 @@ model RiderProfile {
 }
 
 model Trip {
+  cancelledBy       String?
+  cancellationReason String?
+  cancellationNote   String?
   id            String        @id @default(uuid())
   pickupPin     String?       @default("0000")
   distanceKm    Float?        @default(0)
