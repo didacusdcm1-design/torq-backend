@@ -13,9 +13,8 @@ import { RiderStatusController } from './rider-status.controller';
 import { ForceOnlineController } from './force-online.controller';
 import { TripAcceptController } from './trip-accept.controller';
 import { TripCompletionController } from './trip-completion.controller';
-import { ForceCompleteController } from './force-complete.controller';
 import { TripCancellationController } from './trip-cancellation.controller';
-import { CleanupTripsController } from './cleanup-trips.controller';
+import { CleanupTripsController } from './cleanup-trips.controller'; // <-- ADDED
 
 @Module({
   imports: [PrismaModule],
@@ -28,7 +27,9 @@ import { CleanupTripsController } from './cleanup-trips.controller';
     RiderStatusController,
     ForceOnlineController,
     TripAcceptController,
-    TripCompletionController
+    TripCompletionController,
+    TripCancellationController,
+    CleanupTripsController // <-- ADDED
   ],
   providers: [
     TripsService,
@@ -38,6 +39,3 @@ import { CleanupTripsController } from './cleanup-trips.controller';
   ],
 })
 export class TripsModule {}
-
-
-
