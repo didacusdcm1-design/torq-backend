@@ -7,31 +7,28 @@ export class FleetController {
 
   @Get()
   async getFleet() {
-    // Fetch all riders who have a bike registered
+    // 1. Fetch all riders
     const riders = await this.prisma.user.findMany({
-      where: { 
-        role: 'RIDER',
-        riderProfile: {
-          bikeReg: { not: null } // Only show riders who have entered bike details
-        }
-      },
-      include: {
-        riderProfile: true
-      },
+      where: { role: 'RIDER' },
+      include: { riderProfile: true },
       orderBy: { createdAt: 'desc' }
     });
 
-    // Format the data for the fleet table
-    return riders.map(rider => ({
-      id: rider.id,
-      riderName: rider.riderProfile?.fullName || rider.phone,
-      riderPhone: rider.phone,
-      bikeReg: rider.riderProfile?.bikeReg || 'N/A',
-      bikeMake: rider.riderProfile?.bikeMake || 'N/A',
-      bikeModel: rider.riderProfile?.bikeModel || 'N/A',
-      bikeColor: rider.riderProfile?.bikeColor || 'N/A',
-      verificationStatus: rider.riderProfile?.verificationStatus || 'PENDING_REVIEW',
-      isOnline: rider.isOnline
-    }));
+    // 2. Filter for those who actually have a bike registration
+    const fleetData = riders
+      .filter(rider => rider.riderProfile && rider.riderProfile.bikeReg)
+      .map(rider => ({
+        id: rider.id,
+        riderName: rider.riderProfile?.fullName || rider.phone,
+        riderPhone: rider.phone,
+        bikeReg: rider.riderProfile?.bikeReg || 'N/A',
+        bikeMake: rider.riderProfile?.bikeMake || 'N/A',
+        bikeModel: rider.riderProfile?.bikeModel || 'N/A',
+        bikeColor: rider.riderProfile?.bikeColor || 'N/A',
+        verificationStatus: rider.riderProfile?.verificationStatus || 'PENDING_REVIEW',
+        isOnline: rider.isOnline
+      }));
+
+    return fleetData;
   }
 }
