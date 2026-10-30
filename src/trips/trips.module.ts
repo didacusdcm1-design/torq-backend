@@ -28,6 +28,7 @@ import { SettingsController } from './settings.controller';
 import { StaffController } from './staff.controller';
 import { RolesController } from './roles.controller';
 import { PaymentsController } from './payments.controller';
+import { TripRatingController } from './trip-rating.controller';
 import { StaffAuthController } from './staff-auth.controller';
 import { CleanupStaffController } from './cleanup-staff.controller';
 
@@ -45,4 +46,5 @@ import { CleanupStaffController } from './cleanup-staff.controller';
   providers: [TripsService, EventsGateway, FareCalculatorService, DispatchService],
 })
 export class TripsModule {}
+
 
