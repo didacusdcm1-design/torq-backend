@@ -7,9 +7,7 @@ export class PromotionsController {
 
   @Get()
   async getPromos() {
-    return this.prisma.promoCode.findMany({
-      orderBy: { createdAt: 'desc' }
-    });
+    return this.prisma.promoCode.findMany({ orderBy: { createdAt: 'desc' } });
   }
 
   @Post()
@@ -28,10 +26,6 @@ export class PromotionsController {
   async togglePromo(@Param('id') id: string) {
     const promo = await this.prisma.promoCode.findUnique({ where: { id } });
     if (!promo) throw new Error('Promo not found');
-    
-    return this.prisma.promoCode.update({
-      where: { id },
-      data: { isActive: !promo.isActive }
-    });
+    return this.prisma.promoCode.update({ where: { id }, data: { isActive: !promo.isActive } });
   }
 }

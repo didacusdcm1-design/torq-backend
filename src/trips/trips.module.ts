@@ -36,7 +36,8 @@ import { RatingsController } from './ratings.controller';
     CleanupTripsController,
     FleetController,
     ServiceAreaController,
-    PromotionsController
+    PromotionsController,
+    RatingsController
   ],
   providers: [
     TripsService,
@@ -46,4 +47,3 @@ import { RatingsController } from './ratings.controller';
   ],
 })
 export class TripsModule {}
-

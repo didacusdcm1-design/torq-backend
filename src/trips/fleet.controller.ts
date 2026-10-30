@@ -7,15 +7,13 @@ export class FleetController {
 
   @Get()
   async getFleet() {
-    // 1. Fetch all riders
     const riders = await this.prisma.user.findMany({
       where: { role: 'RIDER' },
       include: { riderProfile: true },
       orderBy: { createdAt: 'desc' }
     });
 
-    // 2. Filter for those who actually have a bike registration
-    const fleetData = riders
+    return riders
       .filter(rider => rider.riderProfile && rider.riderProfile.bikeReg)
       .map(rider => ({
         id: rider.id,
@@ -28,7 +26,5 @@ export class FleetController {
         verificationStatus: rider.riderProfile?.verificationStatus || 'PENDING_REVIEW',
         isOnline: rider.isOnline
       }));
-
-    return fleetData;
   }
 }

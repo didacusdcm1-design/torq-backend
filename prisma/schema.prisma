@@ -1,4 +1,4 @@
-﻿generator client {
+generator client {
   provider = "prisma-client-js"
 }
 
@@ -59,7 +59,6 @@ model RiderProfile {
 }
 
 model Trip {
-  rating        Int?
   id            String        @id @default(uuid())
   pickupPin     String?       @default("0000")
   distanceKm    Float?        @default(0)
@@ -71,6 +70,7 @@ model Trip {
   estimatedFare Float
   finalFare     Float?
   status        TripStatus    @default(REQUESTED)
+  rating        Int?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   customerId    String
@@ -78,7 +78,7 @@ model Trip {
   riderId       String?
   rider         User?         @relation("TripRider", fields: [riderId], references: [id])
   ledgerEntries LedgerEntry[]
-  cancelledBy       String?
+  cancelledBy        String?
   cancellationReason String?
   cancellationNote   String?
 }
@@ -123,10 +123,11 @@ model ServiceArea {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 }
+
 model PromoCode {
   id            String   @id @default(uuid())
   code          String   @unique
-  discountType  String   @default("FIXED") // FIXED or PERCENTAGE
+  discountType  String   @default("FIXED")
   discountValue Float
   isActive      Boolean  @default(true)
   usageLimit    Int?

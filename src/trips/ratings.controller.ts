@@ -7,25 +7,18 @@ export class RatingsController {
 
   @Get()
   async getRiderRatings() {
-    // Fetch all riders
     const riders = await this.prisma.user.findMany({
       where: { role: 'RIDER' },
       include: {
-        riderTrips: {
-          where: { rating: { not: null } },
-          select: { rating: true }
-        },
+        riderTrips: { where: { rating: { not: null } }, select: { rating: true } },
         riderProfile: true
       }
     });
 
-    // Calculate stats for each rider
     return riders.map(rider => {
       const ratings = rider.riderTrips.map(t => t.rating!);
       const totalRatings = ratings.length;
-      const averageRating = totalRatings > 0 
-        ? ratings.reduce((a, b) => a + b, 0) / totalRatings 
-        : 0;
+      const averageRating = totalRatings > 0 ? ratings.reduce((a, b) => a + b, 0) / totalRatings : 0;
 
       return {
         id: rider.id,
@@ -33,7 +26,7 @@ export class RatingsController {
         phone: rider.phone,
         totalTrips: rider.riderTrips.length,
         totalRatings: totalRatings,
-        averageRating: Math.round(averageRating * 10) / 10, // Round to 1 decimal
+        averageRating: Math.round(averageRating * 10) / 10,
       };
     });
   }
