@@ -191,3 +191,12 @@ model SystemSetting {
   timezone    String   @default("Africa/Nairobi")
   updatedAt   DateTime @updatedAt
 }
+
+model Staff {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  role      String   @default("SUPPORT_OFFICER") // SUPER_ADMIN, OPERATIONS_MANAGER, FINANCE_OFFICER, SUPPORT_OFFICER
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
