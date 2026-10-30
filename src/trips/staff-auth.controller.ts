@@ -13,8 +13,14 @@ export class StaffAuthController {
   @Post('login')
   async login(@Body() body: { email: string, password: string }) {
     const staff = await this.prisma.staff.findUnique({ where: { email: body.email } });
+    
     if (!staff || !staff.isActive) {
       throw new UnauthorizedException('Invalid credentials or inactive account');
+    }
+
+    // FIX: Ensure password exists before comparing
+    if (!staff.password) {
+      throw new UnauthorizedException('Account password not set. Please contact Super Admin.');
     }
 
     const isMatch = await bcrypt.compare(body.password, staff.password);
