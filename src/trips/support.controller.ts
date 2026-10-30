@@ -1,4 +1,4 @@
-﻿import { Controller, Get, Post, Patch, Param, Body } from '@nestjs/common';
+﻿import { Controller, Get, Patch, Param, Body } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Controller('support')
@@ -7,20 +7,14 @@ export class SupportController {
 
   @Get()
   async getTickets() {
-    return this.prisma.supportTicket.findMany({
-      orderBy: { createdAt: 'desc' }
-    });
+    return this.prisma.supportTicket.findMany({ orderBy: { createdAt: 'desc' } });
   }
 
   @Patch(':id/status')
   async updateStatus(@Param('id') id: string, @Body('status') status: string) {
-    return this.prisma.supportTicket.update({
-      where: { id },
-      data: { status }
-    });
+    return this.prisma.supportTicket.update({ where: { id }, data: { status } });
   }
 
-  // TEMPORARY SEEDER
   @Get('seed')
   async seedTickets() {
     const existing = await this.prisma.supportTicket.count();
