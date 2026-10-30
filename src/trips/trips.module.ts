@@ -39,9 +39,8 @@ import { StaffAuthController } from './staff-auth.controller';
     CleanupTripsController, FleetController, ServiceAreaController, PromotionsController,
     RatingsController, SupportController, SafetyController, DisputesController,
     AuditLogsController, SystemHealthController, SettingsController, StaffController, 
-    RolesController, PaymentsController
+    RolesController, PaymentsController, StaffAuthController
   ],
   providers: [TripsService, EventsGateway, FareCalculatorService, DispatchService],
 })
 export class TripsModule {}
-
