@@ -200,3 +200,9 @@ model Staff {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 }
+model RolePermission {
+  id          String   @id @default(uuid())
+  roleId      String   @unique
+  permissions String   // Comma-separated list or JSON (e.g., "view_riders,approve_riders")
+  updatedAt   DateTime @updatedAt
+}
