@@ -38,7 +38,8 @@ import { SupportController } from './support.controller';
     FleetController,
     ServiceAreaController,
     PromotionsController,
-    RatingsController
+    RatingsController,
+    SupportController
   ],
   providers: [
     TripsService,
@@ -48,4 +49,3 @@ import { SupportController } from './support.controller';
   ],
 })
 export class TripsModule {}
-

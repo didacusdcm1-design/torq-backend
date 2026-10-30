@@ -134,14 +134,15 @@ model PromoCode {
   timesUsed     Int      @default(0)
   createdAt     DateTime @default(now())
 }
+
 model SupportTicket {
   id          String   @id @default(uuid())
   ticketRef   String   @unique
   subject     String
   description String
-  status      String   @default("OPEN") // OPEN, IN_PROGRESS, RESOLVED, CLOSED
-  priority    String   @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
-  userId      String?  // Optional: Link to customer
+  status      String   @default("OPEN")
+  priority    String   @default("MEDIUM")
+  userId      String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
