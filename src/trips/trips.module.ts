@@ -23,35 +23,19 @@ import { SupportController } from './support.controller';
 import { SafetyController } from './safety.controller';
 import { DisputesController } from './disputes.controller';
 import { AuditLogsController } from './audit-logs.controller';
+import { SystemHealthController } from './system-health.controller';
+import { SettingsController } from './settings.controller';
 
 @Module({
   imports: [PrismaModule],
   controllers: [
-    TripsController,
-    LedgerController,
-    WalletController,
-    NotificationsController,
-    RiderRegistrationController,
-    RiderStatusController,
-    ForceOnlineController,
-    TripAcceptController,
-    TripCompletionController,
-    TripCancellationController,
-    CleanupTripsController,
-    FleetController,
-    ServiceAreaController,
-    PromotionsController,
-    RatingsController,
-    SupportController,
-    SafetyController,
-    DisputesController,
-    AuditLogsController
+    TripsController, LedgerController, WalletController, NotificationsController,
+    RiderRegistrationController, RiderStatusController, ForceOnlineController,
+    TripAcceptController, TripCompletionController, TripCancellationController,
+    CleanupTripsController, FleetController, ServiceAreaController, PromotionsController,
+    RatingsController, SupportController, SafetyController, DisputesController,
+    AuditLogsController, SystemHealthController, SettingsController
   ],
-  providers: [
-    TripsService,
-    EventsGateway,
-    FareCalculatorService,
-    DispatchService
-  ],
+  providers: [TripsService, EventsGateway, FareCalculatorService, DispatchService],
 })
 export class TripsModule {}

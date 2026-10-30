@@ -146,17 +146,19 @@ model SupportTicket {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
 model SafetyIncident {
   id          String   @id @default(uuid())
   incidentRef String   @unique
-  type        String   // SOS, ACCIDENT, HARASSMENT, SUSPICIOUS
+  type        String
   description String
-  status      String   @default("OPEN") // OPEN, INVESTIGATING, RESOLVED
-  severity    String   @default("HIGH") // LOW, MEDIUM, HIGH, CRITICAL
-  reporterId  String?  // Link to user if known
+  status      String   @default("OPEN")
+  severity    String   @default("HIGH")
+  reporterId  String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
 model Dispute {
   id          String   @id @default(uuid())
   disputeRef  String   @unique
@@ -164,11 +166,12 @@ model Dispute {
   subject     String
   description String
   amount      Float    @default(0)
-  status      String   @default("OPEN") // OPEN, UNDER_REVIEW, RESOLVED, REJECTED
+  status      String   @default("OPEN")
   priority    String   @default("MEDIUM")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
 model AuditLog {
   id        String   @id @default(uuid())
   actorId   String?
@@ -177,4 +180,14 @@ model AuditLog {
   entityId  String?
   details   String?
   createdAt DateTime @default(now())
+}
+
+model SystemSetting {
+  id          String   @id @default("global")
+  companyName String   @default("TORQ Kenya")
+  supportEmail String  @default("support@torq.co.ke")
+  supportPhone String  @default("+254 700 000 000")
+  currency    String   @default("KES")
+  timezone    String   @default("Africa/Nairobi")
+  updatedAt   DateTime @updatedAt
 }
