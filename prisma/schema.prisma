@@ -146,3 +146,14 @@ model SupportTicket {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+model SafetyIncident {
+  id          String   @id @default(uuid())
+  incidentRef String   @unique
+  type        String   // SOS, ACCIDENT, HARASSMENT, SUSPICIOUS
+  description String
+  status      String   @default("OPEN") // OPEN, INVESTIGATING, RESOLVED
+  severity    String   @default("HIGH") // LOW, MEDIUM, HIGH, CRITICAL
+  reporterId  String?  // Link to user if known
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
