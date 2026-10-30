@@ -24,7 +24,11 @@ export class FleetController {
         bikeModel: rider.riderProfile?.bikeModel || 'N/A',
         bikeColor: rider.riderProfile?.bikeColor || 'N/A',
         verificationStatus: rider.riderProfile?.verificationStatus || 'PENDING_REVIEW',
-        isOnline: rider.isOnline
+        isOnline: rider.isOnline,
+        licenseDocUrl: rider.riderProfile?.licenseDocUrl,
+        insuranceDocUrl: rider.riderProfile?.insuranceDocUrl,
+        bikePhotoUrl: rider.riderProfile?.bikePhotoUrl,
+        selfieUrl: rider.riderProfile?.selfieUrl,
       }));
   }
 }

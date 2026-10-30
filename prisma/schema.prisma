@@ -54,6 +54,8 @@ model RiderProfile {
   bikeReg            String?
   selfieUrl          String?
   licenseDocUrl      String?
+  insuranceDocUrl    String?
+  bikePhotoUrl       String?
   verificationStatus String   @default("PENDING_REVIEW")
   user               User     @relation(fields: [userId], references: [id])
 }
