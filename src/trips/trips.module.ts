@@ -22,6 +22,7 @@ import { RatingsController } from './ratings.controller';
 import { SupportController } from './support.controller';
 import { SafetyController } from './safety.controller';
 import { DisputesController } from './disputes.controller';
+import { AuditLogsController } from './audit-logs.controller';
 
 @Module({
   imports: [PrismaModule],
@@ -53,3 +54,4 @@ import { DisputesController } from './disputes.controller';
   ],
 })
 export class TripsModule {}
+
