@@ -114,3 +114,10 @@ model Notification {
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
 }
+model ServiceArea {
+  id        String   @id @default(uuid())
+  name      String
+  city      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
