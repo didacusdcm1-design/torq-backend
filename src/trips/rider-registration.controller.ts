@@ -29,6 +29,7 @@ export class RiderRegistrationController {
     }),
   }))
   uploadFile(@UploadedFile() file: Express.Multer.File) {
+    if (!file) throw new Error('File not uploaded');
     return { url: `https://torq-backend.onrender.com/uploads/${file.filename}` };
   }
 
@@ -89,4 +90,4 @@ export class RiderRegistrationController {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     return this.prisma.user.update({ where: { id }, data: { password: hashedPassword } });
   }
-}// Force rebuild 10/30/2026 14:45:58
+}
