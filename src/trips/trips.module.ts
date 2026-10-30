@@ -32,7 +32,8 @@ import { ServiceAreaController } from './service-area.controller';
     TripCompletionController,
     TripCancellationController,
     CleanupTripsController,
-    FleetController
+    FleetController,
+    ServiceAreaController
   ],
   providers: [
     TripsService,
@@ -42,4 +43,3 @@ import { ServiceAreaController } from './service-area.controller';
   ],
 })
 export class TripsModule {}
-

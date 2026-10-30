@@ -59,9 +59,6 @@ model RiderProfile {
 }
 
 model Trip {
-  cancelledBy       String?
-  cancellationReason String?
-  cancellationNote   String?
   id            String        @id @default(uuid())
   pickupPin     String?       @default("0000")
   distanceKm    Float?        @default(0)
@@ -80,6 +77,9 @@ model Trip {
   riderId       String?
   rider         User?         @relation("TripRider", fields: [riderId], references: [id])
   ledgerEntries LedgerEntry[]
+  cancelledBy       String?
+  cancellationReason String?
+  cancellationNote   String?
 }
 
 model LedgerEntry {
@@ -114,6 +114,7 @@ model Notification {
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
 }
+
 model ServiceArea {
   id        String   @id @default(uuid())
   name      String
