@@ -21,6 +21,7 @@ import { PromotionsController } from './promotions.controller';
 import { RatingsController } from './ratings.controller';
 import { SupportController } from './support.controller';
 import { SafetyController } from './safety.controller';
+import { DisputesController } from './disputes.controller';
 
 @Module({
   imports: [PrismaModule],
@@ -41,7 +42,8 @@ import { SafetyController } from './safety.controller';
     PromotionsController,
     RatingsController,
     SupportController,
-    SafetyController
+    SafetyController,
+    DisputesController
   ],
   providers: [
     TripsService,
