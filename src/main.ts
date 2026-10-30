@@ -12,11 +12,10 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Serve the uploads folder statically
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {
     prefix: '/uploads/',
   });
 
   await app.listen(process.env.PORT || 3000);
 }
-bootstrap();
+bootstrap();// Force rebuild 10/30/2026 14:45:58

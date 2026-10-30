@@ -18,7 +18,6 @@ export class RiderRegistrationController {
     });
   }
 
-  // --- THE MISSING UPLOAD ENDPOINT ---
   @Post('upload')
   @UseInterceptors(FileInterceptor('file', {
     storage: diskStorage({
@@ -32,7 +31,6 @@ export class RiderRegistrationController {
   uploadFile(@UploadedFile() file: Express.Multer.File) {
     return { url: `https://torq-backend.onrender.com/uploads/${file.filename}` };
   }
-  // -----------------------------------
 
   @Post('register')
   async registerRider(@Body() body: any) {
@@ -91,4 +89,4 @@ export class RiderRegistrationController {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     return this.prisma.user.update({ where: { id }, data: { password: hashedPassword } });
   }
-}
+}// Force rebuild 10/30/2026 14:45:58
