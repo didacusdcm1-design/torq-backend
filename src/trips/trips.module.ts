@@ -28,6 +28,7 @@ import { SettingsController } from './settings.controller';
 import { StaffController } from './staff.controller';
 import { RolesController } from './roles.controller';
 import { PaymentsController } from './payments.controller';
+import { StaffAuthController } from './staff-auth.controller';
 
 @Module({
   imports: [PrismaModule],
@@ -43,3 +44,4 @@ import { PaymentsController } from './payments.controller';
   providers: [TripsService, EventsGateway, FareCalculatorService, DispatchService],
 })
 export class TripsModule {}
+
