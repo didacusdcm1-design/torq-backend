@@ -30,8 +30,6 @@ import { RolesController } from './roles.controller';
 import { PaymentsController } from './payments.controller';
 import { StaffAuthController } from './staff-auth.controller';
 import { TripRatingController } from './trip-rating.controller';
-import { InspectRidersController } from './inspect-riders.controller';
-import { SetRiderPasswordController } from './set-rider-password.controller';
 
 @Module({
   imports: [PrismaModule],
@@ -42,8 +40,7 @@ import { SetRiderPasswordController } from './set-rider-password.controller';
     CleanupTripsController, FleetController, ServiceAreaController, PromotionsController,
     RatingsController, SupportController, SafetyController, DisputesController,
     AuditLogsController, SystemHealthController, SettingsController, StaffController, 
-    RolesController, PaymentsController, StaffAuthController, TripRatingController,
-    InspectRidersController, SetRiderPasswordController
+    RolesController, PaymentsController, StaffAuthController, TripRatingController
   ],
   providers: [TripsService, EventsGateway, FareCalculatorService, DispatchService],
 })
