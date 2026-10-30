@@ -44,7 +44,8 @@ import { AuditLogsController } from './audit-logs.controller';
     RatingsController,
     SupportController,
     SafetyController,
-    DisputesController
+    DisputesController,
+    AuditLogsController
   ],
   providers: [
     TripsService,
@@ -54,4 +55,3 @@ import { AuditLogsController } from './audit-logs.controller';
   ],
 })
 export class TripsModule {}
-
