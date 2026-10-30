@@ -40,7 +40,8 @@ import { SafetyController } from './safety.controller';
     ServiceAreaController,
     PromotionsController,
     RatingsController,
-    SupportController
+    SupportController,
+    SafetyController
   ],
   providers: [
     TripsService,
@@ -50,4 +51,3 @@ import { SafetyController } from './safety.controller';
   ],
 })
 export class TripsModule {}
-
