@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+﻿import { Module } from '@nestjs/common';
 import { TripsService } from './trips.service';
 import { TripsController } from './trips.controller';
 import { PrismaModule } from '../prisma/prisma.module';
@@ -30,6 +30,7 @@ import { RolesController } from './roles.controller';
 import { PaymentsController } from './payments.controller';
 import { StaffAuthController } from './staff-auth.controller';
 import { TripRatingController } from './trip-rating.controller';
+import { CustomerActiveTripController } from './customer-active-trip.controller';
 
 @Module({
   imports: [PrismaModule],
