@@ -20,6 +20,7 @@ import { ServiceAreaController } from './service-area.controller';
 import { PromotionsController } from './promotions.controller';
 import { RatingsController } from './ratings.controller';
 import { SupportController } from './support.controller';
+import { SafetyController } from './safety.controller';
 
 @Module({
   imports: [PrismaModule],
@@ -49,3 +50,4 @@ import { SupportController } from './support.controller';
   ],
 })
 export class TripsModule {}
+
