@@ -55,6 +55,16 @@ export class TripsController {
       Number(body.durationMins)
     );
   }
+  @Get('rider/history')
+  async getRiderHistory(@Req() req: any) {
+    // Fallback to the first rider for testing
+    const rider = await this.prisma.user.findFirst({ where: { role: 'RIDER' } });
+    if (!rider) return [];
+
+    return this.prisma.trip.findMany({
+      where: { riderId: rider.id },
+      orderBy: { createdAt: 'desc' },
+      include: { customer: true }
+    });
+  }
 }
-
-
