@@ -1,27 +1,28 @@
-import { Controller, Patch, Param, NotFoundException } from '@nestjs/common';
+import { Controller, Patch, Param, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Controller('trips')
 export class TripAcceptController {
   constructor(private readonly prisma: PrismaService) {}
 
-  // TEMPORARILY PUBLIC FOR TESTING
   @Patch('accept/:id')
   async acceptTrip(@Param('id') id: string) {
     try {
-      // Find a rider to assign (fallback for testing)
+      // 1. Find a rider to assign
       const rider = await this.prisma.user.findFirst({ where: { role: 'RIDER' } });
-      if (!rider) throw new NotFoundException('No rider found');
+      if (!rider) throw new Error('No rider found');
 
-      return await this.prisma.trip.update({
-        where: { id },
-        data: { 
-          status: 'ACCEPTED',
-          riderId: rider.id 
-        },
-      });
+      // 2. Use RAW SQL to force the update
+      await this.prisma.$executeRaw`
+        UPDATE "Trip" 
+        SET "status" = 'ACCEPTED'::"TripStatus", "riderId" = ${rider.id}
+        WHERE "id" = ${id}
+      `;
+
+      return { success: true, message: 'Trip accepted successfully' };
     } catch (error: any) {
-      return { success: false, message: error.message };
+      console.error("Accept Trip Error:", error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 }
