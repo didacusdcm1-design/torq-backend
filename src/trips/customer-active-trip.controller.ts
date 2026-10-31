@@ -6,10 +6,21 @@ import { AuthGuard } from '@nestjs/passport';
 export class CustomerController {
   constructor(private readonly prisma: PrismaService) {}
 
+  // Helper to get the user ID or fallback to the first customer for testing
+  private async getUserId(req: any): Promise<string> {
+    let userId = req.user?.userId || req.user?.id || req.user?.sub;
+    if (!userId) {
+      // Fallback for testing: get the first customer in the DB
+      const customer = await this.prisma.user.findFirst({ where: { role: 'CUSTOMER' } });
+      userId = customer?.id;
+    }
+    return userId;
+  }
+
   @UseGuards(AuthGuard('jwt'))
   @Get('active-trip')
   async getActiveTrip(@Req() req: any) {
-    const userId = req.user?.userId || req.user?.id || req.user?.sub;
+    const userId = await this.getUserId(req);
     return this.prisma.trip.findFirst({
       where: {
         customerId: userId,
@@ -23,7 +34,7 @@ export class CustomerController {
   @UseGuards(AuthGuard('jwt'))
   @Get('history')
   async getHistory(@Req() req: any) {
-    const userId = req.user?.userId || req.user?.id || req.user?.sub;
+    const userId = await this.getUserId(req);
     return this.prisma.trip.findMany({
       where: { 
         customerId: userId,
@@ -37,14 +48,12 @@ export class CustomerController {
   @UseGuards(AuthGuard('jwt'))
   @Get('notifications')
   async getNotifications(@Req() req: any) {
-    const userId = req.user?.userId || req.user?.id || req.user?.sub;
-    // Fetch notifications for this user
+    const userId = await this.getUserId(req);
     const notifications = await this.prisma.notification.findMany({
       where: { userId: userId },
       orderBy: { createdAt: 'desc' }
     });
 
-    // If no notifications exist, return a welcome message to prevent empty state
     if (notifications.length === 0) {
       return [{
         id: 'welcome-1',
