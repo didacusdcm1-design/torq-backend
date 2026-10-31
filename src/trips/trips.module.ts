@@ -12,6 +12,7 @@ import { RiderRegistrationController } from './rider-registration.controller';
 import { RiderStatusController } from './rider-status.controller';
 import { ForceOnlineController } from './force-online.controller';
 import { TripAcceptController } from './trip-accept.controller';
+import { ForceAcceptController } from './force-accept.controller';
 import { TripCompletionController } from './trip-completion.controller';
 import { TripCancellationController } from './trip-cancellation.controller';
 import { CleanupTripsController } from './cleanup-trips.controller';
@@ -47,5 +48,6 @@ import { InspectTripsController } from './inspect-trips.controller';
   providers: [TripsService, EventsGateway, FareCalculatorService, DispatchService],
 })
 export class TripsModule {}
+
 
 
