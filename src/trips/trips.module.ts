@@ -1,4 +1,4 @@
-﻿import { Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TripsService } from './trips.service';
 import { TripsController } from './trips.controller';
 import { PrismaModule } from '../prisma/prisma.module';
@@ -12,7 +12,6 @@ import { RiderRegistrationController } from './rider-registration.controller';
 import { RiderStatusController } from './rider-status.controller';
 import { ForceOnlineController } from './force-online.controller';
 import { TripAcceptController } from './trip-accept.controller';
-import { ForceAcceptController } from './force-accept.controller';
 import { TripCompletionController } from './trip-completion.controller';
 import { TripCancellationController } from './trip-cancellation.controller';
 import { CleanupTripsController } from './cleanup-trips.controller';
@@ -33,6 +32,7 @@ import { StaffAuthController } from './staff-auth.controller';
 import { TripRatingController } from './trip-rating.controller';
 import { CustomerController } from './customer-active-trip.controller';
 import { InspectTripsController } from './inspect-trips.controller';
+import { ForceAcceptController } from './force-accept.controller';
 
 @Module({
   imports: [PrismaModule],
@@ -43,11 +43,9 @@ import { InspectTripsController } from './inspect-trips.controller';
     CleanupTripsController, FleetController, ServiceAreaController, PromotionsController,
     RatingsController, SupportController, SafetyController, DisputesController,
     AuditLogsController, SystemHealthController, SettingsController, StaffController, 
-    RolesController, PaymentsController, StaffAuthController, TripRatingController
+    RolesController, PaymentsController, StaffAuthController, TripRatingController,
+    CustomerController, InspectTripsController, ForceAcceptController
   ],
   providers: [TripsService, EventsGateway, FareCalculatorService, DispatchService],
 })
 export class TripsModule {}
-
-
-
