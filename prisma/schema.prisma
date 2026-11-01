@@ -23,6 +23,9 @@ enum TripStatus {
 }
 
 model User {
+  notifications    Notification[]
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
   id             String         @id @default(uuid())
   currentLat     Float?
   currentLng     Float?
@@ -61,6 +64,7 @@ model RiderProfile {
 }
 
 model Trip {
+  messages         Message[]
   id            String        @id @default(uuid())
   pickupPin     String?       @default("0000")
   distanceKm    Float?        @default(0)
@@ -220,4 +224,27 @@ model Payment {
   status          String   @default("PENDING") // PENDING, SUCCESSFUL, FAILED, REFUNDED
   providerRef     String?
   createdAt       DateTime @default(now())
+}
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  tripId     String
+  senderId   String
+  receiverId String
+  content    String
+  createdAt  DateTime @default(now())
+
+  trip       Trip     @relation(fields: [tripId], references: [id])
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
 }
