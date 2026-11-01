@@ -220,7 +220,7 @@ model Payment {
 model Notification {
   id        String   @id @default(uuid())
   userId    String
-  title     String
+  title     String   @default("")
   message   String
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
