@@ -9,6 +9,10 @@ export class NotificationsService {
     return this.prisma.notification.create({ data: { userId, title, message } });
   }
 
+  async getAllNotifications() {
+    return this.prisma.notification.findMany({ orderBy: { createdAt: 'desc' } });
+  }
+
   async getUserNotifications(userId: string) {
     return this.prisma.notification.findMany({
       where: { userId },
