@@ -9,6 +9,7 @@ import { EventsGateway } from './events/events.gateway';
 import { AdminController } from './admin/admin.controller';
 import { PricingModule } from './pricing/pricing.module';
 import { RidersModule } from './riders/riders.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { RidersModule } from './riders/riders.module';
     TripsModule,
     PricingModule,
     RidersModule,
+    NotificationsModule,
   ],
   controllers: [AppController, AdminController],
   providers: [AppService, EventsGateway],
