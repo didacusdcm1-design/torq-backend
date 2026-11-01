@@ -24,29 +24,28 @@ enum TripStatus {
 
 model User {
   notifications    Notification[]
-  sentMessages     Message[] @relation("SentMessages")
-  receivedMessages Message[] @relation("ReceivedMessages")
-  id             String         @id @default(uuid())
-  currentLat     Float?
-  currentLng     Float?
-  isOnline       Boolean        @default(false)
-  phone          String?        @unique
-  email          String?        @unique
-  password       String?
-  otpCode        String?
-  role           Role           @default(CUSTOMER)
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  riderProfile   RiderProfile?
-  customerTrips  Trip[]         @relation("TripCustomer")
-  riderTrips     Trip[]         @relation("TripRider")
-  wallet         Wallet?
-  notifications  Notification[]
+  sentMessages     Message[]      @relation("SentMessages")
+  receivedMessages Message[]      @relation("ReceivedMessages")
+  id               String         @id @default(uuid())
+  currentLat       Float?
+  currentLng       Float?
+  isOnline         Boolean        @default(false)
+  phone            String?        @unique
+  email            String?        @unique
+  password         String?
+  otpCode          String?
+  role             Role           @default(CUSTOMER)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  riderProfile     RiderProfile?
+  customerTrips    Trip[]         @relation("TripCustomer")
+  riderTrips       Trip[]         @relation("TripRider")
+  wallet           Wallet?
 }
 
 model RiderProfile {
-  id                 String   @id @default(uuid())
-  userId             String   @unique
+  id                 String  @id @default(uuid())
+  userId             String  @unique
   fullName           String?
   nationalId         String?
   licenseNumber      String?
@@ -59,31 +58,31 @@ model RiderProfile {
   licenseDocUrl      String?
   insuranceDocUrl    String?
   bikePhotoUrl       String?
-  verificationStatus String   @default("PENDING_REVIEW")
-  user               User     @relation(fields: [userId], references: [id])
+  verificationStatus String  @default("PENDING_REVIEW")
+  user               User    @relation(fields: [userId], references: [id])
 }
 
 model Trip {
-  messages         Message[]
-  id            String        @id @default(uuid())
-  pickupPin     String?       @default("0000")
-  distanceKm    Float?        @default(0)
-  durationMins  Int?          @default(0)
-  pickupLat     Float
-  pickupLng     Float
-  dropoffLat    Float
-  dropoffLng    Float
-  estimatedFare Float
-  finalFare     Float?
-  status        TripStatus    @default(REQUESTED)
-  rating        Int?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  customerId    String
-  customer      User          @relation("TripCustomer", fields: [customerId], references: [id])
-  riderId       String?
-  rider         User?         @relation("TripRider", fields: [riderId], references: [id])
-  ledgerEntries LedgerEntry[]
+  messages           Message[]
+  id                 String        @id @default(uuid())
+  pickupPin          String?       @default("0000")
+  distanceKm         Float?        @default(0)
+  durationMins       Int?          @default(0)
+  pickupLat          Float
+  pickupLng          Float
+  dropoffLat         Float
+  dropoffLng         Float
+  estimatedFare      Float
+  finalFare          Float?
+  status             TripStatus    @default(REQUESTED)
+  rating             Int?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  customerId         String
+  customer           User          @relation("TripCustomer", fields: [customerId], references: [id])
+  riderId            String?
+  rider              User?         @relation("TripRider", fields: [riderId], references: [id])
+  ledgerEntries      LedgerEntry[]
   cancelledBy        String?
   cancellationReason String?
   cancellationNote   String?
@@ -108,18 +107,10 @@ model PricingRule {
 }
 
 model Wallet {
-  id      String  @id @default(uuid())
-  userId  String  @unique
-  balance Float   @default(0)
-  user    User    @relation(fields: [userId], references: [id])
-}
-
-model Notification {
-  id        String   @id @default(uuid())
-  userId    String
-  message   String
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
+  id      String @id @default(uuid())
+  userId  String @unique
+  balance Float  @default(0)
+  user    User   @relation(fields: [userId], references: [id])
 }
 
 model ServiceArea {
@@ -189,13 +180,13 @@ model AuditLog {
 }
 
 model SystemSetting {
-  id          String   @id @default("global")
-  companyName String   @default("TORQ Kenya")
-  supportEmail String  @default("support@torq.co.ke")
-  supportPhone String  @default("+254 700 000 000")
-  currency    String   @default("KES")
-  timezone    String   @default("Africa/Nairobi")
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default("global")
+  companyName  String   @default("TORQ Kenya")
+  supportEmail String   @default("support@torq.co.ke")
+  supportPhone String   @default("+254 700 000 000")
+  currency     String   @default("KES")
+  timezone     String   @default("Africa/Nairobi")
+  updatedAt    DateTime @updatedAt
 }
 
 model Staff {
@@ -216,15 +207,16 @@ model RolePermission {
 }
 
 model Payment {
-  id              String   @id @default(uuid())
-  transactionRef  String   @unique
-  tripId          String?
-  amount          Float
-  method          String   // MPESA, CASH, CARD
-  status          String   @default("PENDING") // PENDING, SUCCESSFUL, FAILED, REFUNDED
-  providerRef     String?
-  createdAt       DateTime @default(now())
+  id             String   @id @default(uuid())
+  transactionRef String   @unique
+  tripId         String?
+  amount         Float
+  method         String // MPESA, CASH, CARD
+  status         String   @default("PENDING") // PENDING, SUCCESSFUL, FAILED, REFUNDED
+  providerRef    String?
+  createdAt      DateTime @default(now())
 }
+
 model Notification {
   id        String   @id @default(uuid())
   userId    String
@@ -233,7 +225,7 @@ model Notification {
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 }
 
 model Message {
@@ -244,7 +236,7 @@ model Message {
   content    String
   createdAt  DateTime @default(now())
 
-  trip       Trip     @relation(fields: [tripId], references: [id])
-  sender     User     @relation("SentMessages", fields: [senderId], references: [id])
-  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  trip     Trip @relation(fields: [tripId], references: [id])
+  sender   User @relation("SentMessages", fields: [senderId], references: [id])
+  receiver User @relation("ReceivedMessages", fields: [receiverId], references: [id])
 }
