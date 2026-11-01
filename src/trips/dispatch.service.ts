@@ -1,4 +1,4 @@
-﻿import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { FareCalculatorService } from './fare-calculator.service';
 
@@ -27,7 +27,7 @@ export class DispatchService {
 
   async dispatchRide(customerId: string, pickupLat: number, pickupLng: number, dropoffLat: number, dropoffLng: number, distanceKm: number, durationMins: number) {
     const onlineRiders = await this.prisma.user.findMany({
-      where: { role: 'RIDER', isOnline: true, currentLat: { not: null }, currentLng: { not: null } },
+      where: { role: 'RIDER', isOnline: true, verificationStatus: 'APPROVED', currentLat: { not: null }, currentLng: { not: null } },
     });
 
     if (onlineRiders.length === 0) {
