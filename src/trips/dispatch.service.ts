@@ -27,7 +27,8 @@ export class DispatchService {
 
   async dispatchRide(customerId: string, pickupLat: number, pickupLng: number, dropoffLat: number, dropoffLng: number, distanceKm: number, durationMins: number) {
     const onlineRiders = await this.prisma.user.findMany({
-      where: { role: 'RIDER', isOnline: true, status: 'APPROVED', currentLat: { not: null }, currentLng: { not: null } },
+      include: { riderProfile: true },
+      where: { role: 'RIDER', isOnline: true, currentLat: { not: null }, currentLng: { not: null }, riderProfile: { verificationStatus: 'APPROVED' } },
     });
 
     if (onlineRiders.length === 0) {
