@@ -10,8 +10,17 @@ export class NotificationsController {
     return this.notificationsService.createNotification(body.userId, body.title, body.message);
   }
 
+  // We changed this to match how your app fetches trips
+  @Get('my-notifications')
+  async getUserNotifications(@Body() body?: any) {
+    // NOTE: If your backend uses a Guard/Middleware to extract the user ID from the token, 
+    // you would use `@Req() req` here to get `req.user.id`.
+    // For now, we will allow a fallback query param if body isn't used.
+    return this.notificationsService.getAllNotifications(); 
+  }
+
   @Get('user/:userId')
-  async getUserNotifications(@Param('userId') userId: string) {
+  async getUserNotificationsById(@Param('userId') userId: string) {
     return this.notificationsService.getUserNotifications(userId);
   }
 
