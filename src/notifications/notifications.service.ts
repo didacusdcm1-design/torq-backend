@@ -35,4 +35,23 @@ export class NotificationsService {
       orderBy: { createdAt: 'asc' },
     });
   }
+
+  async broadcast(title: string, message: string, target: string) {
+    let users;
+    if (target === 'RIDERS') {
+      users = await this.prisma.user.findMany({ where: { role: 'RIDER' } });
+    } else if (target === 'CUSTOMERS') {
+      users = await this.prisma.user.findMany({ where: { role: 'CUSTOMER' } });
+    } else {
+      users = await this.prisma.user.findMany();
+    }
+
+    const notifications = users.map(user => ({
+      userId: user.id,
+      title,
+      message,
+    }));
+
+    return this.prisma.notification.createMany({ data: notifications });
+  }
 }

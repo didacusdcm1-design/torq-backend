@@ -29,4 +29,9 @@ export class NotificationsController {
   async getTripMessages(@Param('tripId') tripId: string) {
     return this.notificationsService.getTripMessages(tripId);
   }
+
+  @Post('broadcast')
+  async broadcast(@Body() body: { title: string; message: string; target: string }) {
+    return this.notificationsService.broadcast(body.title, body.message, body.target);
+  }
 }
