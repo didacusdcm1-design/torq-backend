@@ -58,21 +58,14 @@ export class NotificationsService {
   }
 
   async broadcast(title: string, message: string, target: string) {
-    let users;
-    if (target === 'RIDERS') {
-      users = await this.prisma.user.findMany({ where: { role: 'RIDER' } });
-    } else if (target === 'CUSTOMERS') {
-      users = await this.prisma.user.findMany({ where: { role: 'CUSTOMER' } });
-    } else {
-      users = await this.prisma.user.findMany();
-    }
-
-    const notifications = users.map(user => ({
-      userId: user.id,
-      title,
-      message,
-    }));
-
-    return this.prisma.notification.createMany({ data: notifications });
+    // Create ONE global notification that everyone can see.
+    // We use userId: null for global broadcasts.
+    return this.prisma.notification.create({
+      data: {
+        title,
+        message,
+        userId: null, // Global!
+      },
+    });
   }
 }
