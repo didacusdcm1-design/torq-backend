@@ -15,7 +15,12 @@ export class NotificationsService {
 
   async getUserNotifications(userId: string) {
     return this.prisma.notification.findMany({
-      where: { userId },
+      where: {
+        OR: [
+          { userId: userId },
+          { userId: null } // Catches global broadcasts
+        ]
+      },
       orderBy: { createdAt: 'desc' },
     });
   }
