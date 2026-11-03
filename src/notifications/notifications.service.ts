@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -14,13 +15,17 @@ export class NotificationsService {
   }
 
   async getUserNotifications(userId: string) {
+    // Cast to Prisma.NotificationWhereInput to bypass strict null checking
+    // while still allowing the query to search for nulls at runtime.
+    const whereClause: Prisma.NotificationWhereInput = {
+      OR: [
+        { userId: userId },
+        { userId: null }
+      ]
+    } as unknown as Prisma.NotificationWhereInput;
+
     return this.prisma.notification.findMany({
-      where: {
-        OR: [
-          { userId: userId },
-          { userId: { equals: null } } // Prisma-safe null check
-        ]
-      },
+      where: whereClause,
       orderBy: { createdAt: 'desc' },
     });
   }
