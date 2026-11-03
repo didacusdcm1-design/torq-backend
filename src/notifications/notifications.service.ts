@@ -15,19 +15,26 @@ export class NotificationsService {
   }
 
   async getUserNotifications(userId: string) {
-    // Cast to Prisma.NotificationWhereInput to bypass strict null checking
-    // while still allowing the query to search for nulls at runtime.
-    const whereClause: Prisma.NotificationWhereInput = {
-      OR: [
-        { userId: userId },
-        { userId: null }
-      ]
-    } as unknown as Prisma.NotificationWhereInput;
-
-    return this.prisma.notification.findMany({
-      where: whereClause,
+    // 1. Get direct messages for this user
+    const userNotifications = await this.prisma.notification.findMany({
+      where: { userId: userId },
       orderBy: { createdAt: 'desc' },
     });
+
+    // 2. Get global broadcasts (where userId is null or empty)
+    // We query for NOT userId, which Prisma allows, to get the global broadcasts safely.
+    const globalBroadcasts = await this.prisma.notification.findMany({
+      where: {
+        NOT: { userId: userId }
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // 3. Combine and sort them
+    const allNotifications = [...userNotifications, ...globalBroadcasts];
+    allNotifications.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+    return allNotifications;
   }
 
   async markAsRead(notificationId: string) {
