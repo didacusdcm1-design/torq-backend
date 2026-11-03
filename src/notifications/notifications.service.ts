@@ -18,7 +18,7 @@ export class NotificationsService {
       where: {
         OR: [
           { userId: userId },
-          { userId: null } as any // <--- The 'as any' fix stops the TypeScript error
+          { userId: { equals: null } } // Prisma-safe null check
         ]
       },
       orderBy: { createdAt: 'desc' },
