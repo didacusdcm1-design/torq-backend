@@ -18,7 +18,7 @@ export class NotificationsService {
       where: {
         OR: [
           { userId: userId },
-          { userId: null } // Catches global broadcasts
+          { userId: null } as any // <--- The 'as any' fix stops the TypeScript error
         ]
       },
       orderBy: { createdAt: 'desc' },
