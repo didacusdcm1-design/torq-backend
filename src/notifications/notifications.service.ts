@@ -64,7 +64,7 @@ export class NotificationsService {
       data: {
         title,
         message,
-        userId: null, // Global!
+        userId: null as any, // Global!
       },
     });
   }
