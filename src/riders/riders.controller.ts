@@ -48,7 +48,7 @@ export class RidersController {
       console.log("Files received:", files);
 
       // Check if phone exists
-      let finalPhone = body.phone || phone_ + Date.now();
+      let finalPhone = body.phone || ('phone_' + Date.now());
       const existingUser = await this.prisma.user.findUnique({ where: { phone: finalPhone } });
       if (existingUser) {
         finalPhone = finalPhone + '_' + Math.floor(Math.random() * 1000);
