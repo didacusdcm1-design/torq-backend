@@ -79,47 +79,6 @@ export class RidersController {
       console.error("REGISTRATION ERROR:", error);
       throw error;
     }
-  }))
-  async register(
-    @Body() body: any, 
-    @UploadedFiles() files: { 
-      nationalId?: Express.Multer.File[], 
-      driversLicense?: Express.Multer.File[], 
-      bikePicture?: Express.Multer.File[], 
-      passportPhoto?: Express.Multer.File[], 
-      insurance?: Express.Multer.File[] 
-    }
-  ) {
-    // For now, we just save what we can. 
-    // Note: Your Flutter app needs to send fullName, nationalId, emergencyContact, bikeColor, etc.
-    const newUser = await this.prisma.user.create({
-      data: {
-        
-        phone: body.phone || '0000000000',
-        email: body.email || null,
-        role: 'RIDER',
-        password: 'temporary_password', 
-        riderProfile: {
-          create: {
-            fullName: body.fullName || body.name || 'Unknown',
-            nationalId: body.nationalIdText || body.nationalId || null,
-            emergencyContact: body.emergencyContact || null,
-            bikeMake: body.bikeMake || 'Unknown',
-            bikeModel: body.bikeModel || null,
-            bikeColor: body.bikeColor || null,
-            licenseNumber: body.plateNumber || body.licenseNumber || null,
-            
-            // Save the image paths
-            licenseDocUrl: files.driversLicense ? files.driversLicense[0].path.replace(/\\/g, '/') : null,
-            insuranceDocUrl: files.insurance ? files.insurance[0].path.replace(/\\/g, '/') : null,
-            bikePhotoUrl: files.bikePicture ? files.bikePicture[0].path.replace(/\\/g, '/') : null,
-            selfieUrl: files.passportPhoto ? files.passportPhoto[0].path.replace(/\\/g, '/') : null,
-          }
-        }
-      }
-    });
-
-    return { message: 'Registration successful', userId: newUser.id };
   }
 
   @Patch('approve/:userId')
