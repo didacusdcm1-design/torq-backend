@@ -1,4 +1,7 @@
-﻿import { Controller, Get, Patch, Param, Body, Query } from '@nestjs/common';
+import { Controller, UseInterceptors, UploadedFiles, Get, Patch, Param, Body, Query } } from '@nestjs/common';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 import { RidersService } from './riders.service';
 
 @Controller('riders')
