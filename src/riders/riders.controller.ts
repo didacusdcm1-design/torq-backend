@@ -42,6 +42,54 @@ export class RidersController {
       insurance?: Express.Multer.File[] 
     }
   ) {
+    try {
+      console.log("=== NEW REGISTRATION ===");
+      console.log("Body:", body);
+      console.log("Files received:", files);
+
+      const newUser = await this.prisma.user.create({
+        data: {
+          phone: body.phone || `phone_${Date.now()}`, // Fallback if empty
+          email: body.email || null,
+          role: 'RIDER',
+          password: 'temporary_password', 
+          riderProfile: {
+            create: {
+              fullName: body.name || body.fullName || 'Unknown',
+              nationalId: body.nationalIdText || null,
+              emergencyContact: body.emergencyContact || null,
+              bikeMake: 'Unknown',
+              bikeModel: body.bikeModel || null,
+              bikeColor: body.bikeColor || null,
+              licenseNumber: body.plateNumber || null,
+              verificationStatus: 'PENDING_REVIEW',
+              
+              licenseDocUrl: files.driversLicense ? files.driversLicense[0].path.replace(/\\/g, '/') : null,
+              insuranceDocUrl: files.insurance ? files.insurance[0].path.replace(/\\/g, '/') : null,
+              bikePhotoUrl: files.bikePicture ? files.bikePicture[0].path.replace(/\\/g, '/') : null,
+              selfieUrl: files.passportPhoto ? files.passportPhoto[0].path.replace(/\\/g, '/') : null,
+            }
+          }
+        }
+      });
+
+      console.log("SUCCESS: User created", newUser.id);
+      return { message: 'Registration successful', userId: newUser.id };
+    } catch (error) {
+      console.error("REGISTRATION ERROR:", error);
+      throw error;
+    }
+  }))
+  async register(
+    @Body() body: any, 
+    @UploadedFiles() files: { 
+      nationalId?: Express.Multer.File[], 
+      driversLicense?: Express.Multer.File[], 
+      bikePicture?: Express.Multer.File[], 
+      passportPhoto?: Express.Multer.File[], 
+      insurance?: Express.Multer.File[] 
+    }
+  ) {
     // For now, we just save what we can. 
     // Note: Your Flutter app needs to send fullName, nationalId, emergencyContact, bikeColor, etc.
     const newUser = await this.prisma.user.create({
