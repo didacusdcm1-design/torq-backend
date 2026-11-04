@@ -1,22 +1,22 @@
 import { Controller, Get, Post, Body, Param, Patch } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
+import { ChatGateway } from './chat.gateway';
 
 @Controller('notifications')
 export class NotificationsController {
-  constructor(private readonly notificationsService: NotificationsService) {}
+  constructor(
+    private readonly notificationsService: NotificationsService,
+    private readonly chatGateway: ChatGateway
+  ) {}
 
   @Post()
   async createNotification(@Body() body: { userId: string; title: string; message: string }) {
     return this.notificationsService.createNotification(body.userId, body.title, body.message);
   }
 
-  // We changed this to match how your app fetches trips
   @Get('my-notifications')
   async getUserNotifications(@Body() body?: any) {
-    // NOTE: If your backend uses a Guard/Middleware to extract the user ID from the token, 
-    // you would use `@Req() req` here to get `req.user.id`.
-    // For now, we will allow a fallback query param if body isn't used.
-    return this.notificationsService.getAllNotifications(); 
+    return this.notificationsService.getAllNotifications();
   }
 
   @Get('user/:userId')
@@ -31,7 +31,10 @@ export class NotificationsController {
 
   @Post('chat')
   async sendMessage(@Body() body: { tripId: string; senderId: string; receiverId: string; content: string }) {
-    return this.notificationsService.sendMessage(body.tripId, body.senderId, body.receiverId, body.content);
+    const msg = await this.notificationsService.sendMessage(body.tripId, body.senderId, body.receiverId, body.content);
+    // Optional: Emit the chat message in real-time
+    this.chatGateway.server.to(body.tripId).emit('newMessage', msg);
+    return msg;
   }
 
   @Get('chat/:tripId')
@@ -41,6 +44,11 @@ export class NotificationsController {
 
   @Post('broadcast')
   async broadcast(@Body() body: { title: string; message: string; target: string }) {
-    return this.notificationsService.broadcast(body.title, body.message, body.target);
+    const result = await this.notificationsService.broadcast(body.title, body.message, body.target);
+    
+    // ?? THIS IS THE MAGIC LINE! Broadcasts to all connected apps instantly.
+    this.chatGateway.server.emit('newNotification', result);
+    
+    return result;
   }
 }
