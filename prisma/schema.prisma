@@ -44,6 +44,10 @@ model User {
 }
 
 model RiderProfile {
+  driversLicenseUrl String?
+  bikePictureUrl    String?
+  passportPhotoUrl  String?
+  insuranceUrl      String?
   id                 String  @id @default(uuid())
   userId             String  @unique
   fullName           String?
