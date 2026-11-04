@@ -19,7 +19,7 @@ export class NotificationsService {
       where: {
         OR: [
           { userId: userId }, 
-          { userId: null },   
+          { userId: { equals: null } },   
         ],
       },
       orderBy: { createdAt: 'desc' },
