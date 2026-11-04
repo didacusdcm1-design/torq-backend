@@ -15,15 +15,12 @@ export class NotificationsService {
   }
 
   async getUserNotifications(userId: string) {
-    return this.prisma.notification.findMany({
-      where: {
-        OR: [
-          { userId: userId }, 
-          { userId: { equals: null } },   
-        ],
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+    // Raw SQL bypasses TypeScript's strict null checks for Prisma
+    return this.prisma.$queryRaw`
+      SELECT * FROM "Notification" 
+      WHERE "userId" = ${userId} OR "userId" IS NULL 
+      ORDER BY "createdAt" DESC
+    `;
   }
 
   async markAsRead(notificationId: string) {
