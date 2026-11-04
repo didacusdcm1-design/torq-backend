@@ -42,32 +42,30 @@ export class RidersController {
       insurance?: Express.Multer.File[] 
     }
   ) {
-    const { name, phone, email, plateNumber, bikeModel, nationalIdText, emergencyContact, bikeColor } = body;
-
-    // Save User + Rider Profile to database using EXACT schema fields
+    // For now, we just save what we can. 
+    // Note: Your Flutter app needs to send fullName, nationalId, emergencyContact, bikeColor, etc.
     const newUser = await this.prisma.user.create({
       data: {
-        name: name || 'Unknown',
-        phone: phone || '0000000000',
-        email: email || null,
+        name: body.name || body.fullName || 'Unknown',
+        phone: body.phone || '0000000000',
+        email: body.email || null,
         role: 'RIDER',
         password: 'temporary_password', 
         riderProfile: {
           create: {
-            fullName: name || 'Unknown',
-            nationalId: nationalIdText || null,
-            emergencyContact: emergencyContact || null,
-            bikeMake: 'Unknown', // Defaulting since not sent from app
-            bikeModel: bikeModel || null,
-            bikeColor: bikeColor || null,
-            licenseNumber: plateNumber || null, // Mapping plateNumber to licenseNumber
-            verificationStatus: 'PENDING_REVIEW',
+            fullName: body.fullName || body.name || 'Unknown',
+            nationalId: body.nationalIdText || body.nationalId || null,
+            emergencyContact: body.emergencyContact || null,
+            bikeMake: body.bikeMake || 'Unknown',
+            bikeModel: body.bikeModel || null,
+            bikeColor: body.bikeColor || null,
+            licenseNumber: body.plateNumber || body.licenseNumber || null,
             
-            nationalIdUrl: files.nationalId ? files.nationalId[0].path.replace(/\\/g, '/') : null,
-            driversLicenseUrl: files.driversLicense ? files.driversLicense[0].path.replace(/\\/g, '/') : null,
-            bikePictureUrl: files.bikePicture ? files.bikePicture[0].path.replace(/\\/g, '/') : null,
-            passportPhotoUrl: files.passportPhoto ? files.passportPhoto[0].path.replace(/\\/g, '/') : null,
-            insuranceUrl: files.insurance ? files.insurance[0].path.replace(/\\/g, '/') : null,
+            // Save the image paths
+            licenseDocUrl: files.driversLicense ? files.driversLicense[0].path.replace(/\\/g, '/') : null,
+            insuranceDocUrl: files.insurance ? files.insurance[0].path.replace(/\\/g, '/') : null,
+            bikePhotoUrl: files.bikePicture ? files.bikePicture[0].path.replace(/\\/g, '/') : null,
+            selfieUrl: files.passportPhoto ? files.passportPhoto[0].path.replace(/\\/g, '/') : null,
           }
         }
       }
@@ -86,11 +84,9 @@ export class RidersController {
 
   @Patch('reject/:userId')
   async rejectRider(@Param('userId') userId: string, @Body() body: { reason: string }) {
-    // Note: If your schema doesn't have rejectionReason, this will fail. 
-    // We are leaving it out to prevent crashes.
     return this.prisma.riderProfile.update({
       where: { userId: userId },
-      data: { verificationStatus: 'REJECTED' },
+      data: { verificationStatus: 'REJECTED', rejectionReason: body.reason || 'No reason' },
     });
   }
 

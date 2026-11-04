@@ -44,32 +44,27 @@ model User {
 }
 
 model RiderProfile {
-  rejectionReason   String?
-  plateNumber       String?
-  bikeModel         String?
-  bikeColor         String?
-  nationalId        String?
-  emergencyContact  String?
-  driversLicenseUrl String?
-  bikePictureUrl    String?
-  passportPhotoUrl  String?
-  insuranceUrl      String?
   id                 String  @id @default(uuid())
   userId             String  @unique
+  user               User    @relation(fields: [userId], references: [id])
+  
   fullName           String?
   nationalId         String?
   licenseNumber      String?
   emergencyContact   String?
+  
   bikeMake           String?
   bikeModel          String?
   bikeColor          String?
   bikeReg            String?
+  
+  rejectionReason    String?
+  verificationStatus String  @default("PENDING_REVIEW")
+  
   selfieUrl          String?
   licenseDocUrl      String?
   insuranceDocUrl    String?
   bikePhotoUrl       String?
-  verificationStatus String  @default("PENDING_REVIEW")
-  user               User    @relation(fields: [userId], references: [id])
 }
 
 model Trip {
