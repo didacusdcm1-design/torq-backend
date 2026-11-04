@@ -46,7 +46,7 @@ export class RidersController {
     // Note: Your Flutter app needs to send fullName, nationalId, emergencyContact, bikeColor, etc.
     const newUser = await this.prisma.user.create({
       data: {
-        name: body.name || body.fullName || 'Unknown',
+        
         phone: body.phone || '0000000000',
         email: body.email || null,
         role: 'RIDER',
