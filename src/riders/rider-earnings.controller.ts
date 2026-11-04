@@ -7,8 +7,6 @@ export class RiderEarningsController {
 
   @Get(':riderId/earnings')
   async getRiderEarnings(@Param('riderId') riderId: string) {
-    // 1. Fetch completed trips for this rider
-    // (Adjust the 'status' field if your database uses a different string like 'COMPLETED')
     const trips = await this.prisma.trip.findMany({
       where: {
         riderId: riderId,
@@ -17,25 +15,32 @@ export class RiderEarningsController {
       orderBy: { createdAt: 'desc' },
     });
 
-    // 2. Calculate totals
     let totalGross = 0;
     trips.forEach(trip => {
-      // Assume your trip table has a 'price' or 'fare' column. 
-      // If it's named differently, change 'price' to match your schema.
-      totalGross += trip.price || 0; 
+      // Use finalFare if it exists, otherwise fallback to estimatedFare
+      totalGross += trip.finalFare || trip.estimatedFare || 0; 
     });
 
-    // Assuming TORQ takes 20% commission
     const commissionRate = 0.20;
     const totalCommission = totalGross * commissionRate;
     const netEarnings = totalGross - totalCommission;
+
+    // Map the recent trips so the Flutter app gets the right field names
+    const formattedTrips = trips.slice(0, 10).map(trip => ({
+      id: trip.id,
+      // Since we don't have text addresses, use coordinates as the location string
+      pickupLocation: `${trip.pickupLat.toFixed(4)}, ${trip.pickupLng.toFixed(4)}`,
+      dropoffLocation: `${trip.dropoffLat.toFixed(4)}, ${trip.dropoffLng.toFixed(4)}`,
+      price: trip.finalFare || trip.estimatedFare || 0,
+      createdAt: trip.createdAt,
+    }));
 
     return {
       totalGross,
       totalCommission,
       netEarnings,
       totalTrips: trips.length,
-      recentTrips: trips.slice(0, 10), // Only send the 10 most recent to the UI
+      recentTrips: formattedTrips, 
     };
   }
 }
