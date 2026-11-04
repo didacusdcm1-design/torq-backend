@@ -44,6 +44,12 @@ model User {
 }
 
 model RiderProfile {
+  rejectionReason   String?
+  plateNumber       String?
+  bikeModel         String?
+  bikeColor         String?
+  nationalId        String?
+  emergencyContact  String?
   driversLicenseUrl String?
   bikePictureUrl    String?
   passportPhotoUrl  String?
