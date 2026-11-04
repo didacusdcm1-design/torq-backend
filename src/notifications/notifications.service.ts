@@ -15,26 +15,15 @@ export class NotificationsService {
   }
 
   async getUserNotifications(userId: string) {
-    // 1. Get direct messages for this user
-    const userNotifications = await this.prisma.notification.findMany({
-      where: { userId: userId },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    // 2. Get global broadcasts (where userId is null or empty)
-    // We query for NOT userId, which Prisma allows, to get the global broadcasts safely.
-    const globalBroadcasts = await this.prisma.notification.findMany({
+    return this.prisma.notification.findMany({
       where: {
-        NOT: { userId: userId }
+        OR: [
+          { userId: userId }, 
+          { userId: null },   
+        ],
       },
       orderBy: { createdAt: 'desc' },
     });
-
-    // 3. Combine and sort them
-    const allNotifications = [...userNotifications, ...globalBroadcasts];
-    allNotifications.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-
-    return allNotifications;
   }
 
   async markAsRead(notificationId: string) {
@@ -58,13 +47,11 @@ export class NotificationsService {
   }
 
   async broadcast(title: string, message: string, target: string) {
-    // Create ONE global notification that everyone can see.
-    // We use userId: null for global broadcasts.
     return this.prisma.notification.create({
       data: {
         title,
         message,
-        userId: null as any, // Global!
+        userId: null as any, 
       },
     });
   }
