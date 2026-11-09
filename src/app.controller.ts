@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+﻿import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { PrismaService } from './prisma/prisma.service';
 import { Role, TripStatus } from '@prisma/client';
@@ -89,4 +89,56 @@ export class AppController {
       };
     }
   }
-}
+
+  @Get('api/seed')
+  async seedDatabase() {
+    try {
+      // Check if we already seeded
+      const userCount = await this.prisma.user.count();
+      if (userCount > 0) return { message: "Database already seeded!" };
+
+      // Create Customer
+      const customer = await this.prisma.user.create({
+        data: { phone: '+254700111222', role: Role.CUSTOMER, email: 'customer@test.com' },
+      });
+
+      // Create Rider
+      const rider = await this.prisma.user.create({
+        data: { phone: '+254700333444', role: Role.RIDER, isOnline: true, email: 'rider@test.com' },
+      });
+
+      // Create 3 Completed Trips
+      for (let i = 0; i < 3; i++) {
+        await this.prisma.trip.create({
+          data: {
+            customerId: customer.id, riderId: rider.id,
+            pickupLat: -1.29, pickupLng: 36.82, dropoffLat: -1.30, dropoffLng: 36.83,
+            estimatedFare: 500, finalFare: 450, status: TripStatus.COMPLETED, rating: 5
+          },
+        });
+      }
+
+      // Create 1 In-Progress Trip
+      await this.prisma.trip.create({
+        data: {
+          customerId: customer.id, riderId: rider.id,
+          pickupLat: -1.29, pickupLng: 36.82, dropoffLat: -1.30, dropoffLng: 36.83,
+          estimatedFare: 300, status: TripStatus.IN_PROGRESS
+        },
+      });
+
+      // Create 1 Pending Trip
+      await this.prisma.trip.create({
+        data: {
+          customerId: customer.id,
+          pickupLat: -1.29, pickupLng: 36.82, dropoffLat: -1.30, dropoffLng: 36.83,
+          estimatedFare: 200, status: TripStatus.REQUESTED
+        },
+      });
+
+      return { success: true, message: "Database seeded successfully!" };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }}
+
