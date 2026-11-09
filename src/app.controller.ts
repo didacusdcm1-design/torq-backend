@@ -52,13 +52,31 @@ export class AppController {
           pending: pendingTrips, 
           cancelled: cancelledTrips 
         },
-        revenueChart: []
+                revenueChart: await this.prisma.trip.groupBy({
+          by: ['createdAt'],
+          _sum: { finalFare: true },
+          where: { status: TripStatus.COMPLETED },
+          orderBy: { createdAt: 'asc' },
+          take: 7
+        }).then(trips => trips.map(t => ({
+          date: t.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          amount: t._sum.finalFare || 0
+        }))).catch(() => [])
       };
     } catch (error) {
       return { 
         stats: { totalTrips: 0, activeRiders: 0, activeCustomers: 0, totalRevenue: 0, averageRating: 0 }, 
         tripStatus: { completed: 0, inProgress: 0, pending: 0, cancelled: 0 }, 
-        revenueChart: [] 
+                revenueChart: await this.prisma.trip.groupBy({
+          by: ['createdAt'],
+          _sum: { finalFare: true },
+          where: { status: TripStatus.COMPLETED },
+          orderBy: { createdAt: 'asc' },
+          take: 7
+        }).then(trips => trips.map(t => ({
+          date: t.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          amount: t._sum.finalFare || 0
+        }))).catch(() => []) 
       };
     }
   }
