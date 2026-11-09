@@ -46,42 +46,20 @@ export class AppController {
           totalRevenue: revenueData._sum.finalFare || 0,
           averageRating: ratingData._avg.rating ? Number(ratingData._avg.rating.toFixed(1)) : 0
         },
-        tripStatus: { completed: completedTrips, inProgress: inProgressTrips, pending: pendingTrips, cancelled: cancelledTrips },
+        tripStatus: { 
+          completed: completedTrips, 
+          inProgress: inProgressTrips, 
+          pending: pendingTrips, 
+          cancelled: cancelledTrips 
+        },
         revenueChart: []
       };
     } catch (error) {
-      return { stats: { totalTrips: 0, activeRiders: 0, activeCustomers: 0, totalRevenue: 0, averageRating: 0 }, tripStatus: { completed: 0, inProgress: 0, pending: 0, cancelled: 0 }, revenueChart: [] };
-    }
-  }
-
-  @Get('api/seed')
-  async seedDatabase() {
-    try {
-      // 1. Delete child records first to avoid Foreign Key errors
-      await this.prisma.ledgerEntry.deleteMany({});
-      await this.prisma.message.deleteMany({});
-      await this.prisma.notification.deleteMany({});
-      await this.prisma.wallet.deleteMany({});
-      await this.prisma.riderProfile.deleteMany({});
-      
-      // 2. Now it's safe to delete Trips and Users
-      await this.prisma.trip.deleteMany({});
-      await this.prisma.user.deleteMany({});
-
-      // 3. Create Customer & Rider
-      const customer = await this.prisma.user.create({ data: { phone: '+254700111222', role: Role.CUSTOMER, email: 'customer@test.com' } });
-      const rider = await this.prisma.user.create({ data: { phone: '+254700333444', role: Role.RIDER, isOnline: true, email: 'rider@test.com' } });
-
-      // 4. Create Trips
-      for (let i = 0; i < 3; i++) {
-        await this.prisma.trip.create({ data: { customerId: customer.id, riderId: rider.id, pickupLat: -1.29, pickupLng: 36.82, dropoffLat: -1.30, dropoffLng: 36.83, estimatedFare: 500, finalFare: 450, status: TripStatus.COMPLETED, rating: 5 } });
-      }
-      await this.prisma.trip.create({ data: { customerId: customer.id, riderId: rider.id, pickupLat: -1.29, pickupLng: 36.82, dropoffLat: -1.30, dropoffLng: 36.83, estimatedFare: 300, status: TripStatus.IN_PROGRESS } });
-      await this.prisma.trip.create({ data: { customerId: customer.id, pickupLat: -1.29, pickupLng: 36.82, dropoffLat: -1.30, dropoffLng: 36.83, estimatedFare: 200, status: TripStatus.REQUESTED } });
-
-      return { success: true, message: "Database seeded successfully!" };
-    } catch (error) {
-      return { success: false, error: (error as Error).message };
+      return { 
+        stats: { totalTrips: 0, activeRiders: 0, activeCustomers: 0, totalRevenue: 0, averageRating: 0 }, 
+        tripStatus: { completed: 0, inProgress: 0, pending: 0, cancelled: 0 }, 
+        revenueChart: [] 
+      };
     }
   }
 }
