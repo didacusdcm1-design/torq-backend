@@ -57,15 +57,22 @@ export class AppController {
   @Get('api/seed')
   async seedDatabase() {
     try {
-      // 1. Delete existing data to ensure a clean slate
+      // 1. Delete child records first to avoid Foreign Key errors
+      await this.prisma.ledgerEntry.deleteMany({});
+      await this.prisma.message.deleteMany({});
+      await this.prisma.notification.deleteMany({});
+      await this.prisma.wallet.deleteMany({});
+      await this.prisma.riderProfile.deleteMany({});
+      
+      // 2. Now it's safe to delete Trips and Users
       await this.prisma.trip.deleteMany({});
       await this.prisma.user.deleteMany({});
 
-      // 2. Create Customer & Rider
+      // 3. Create Customer & Rider
       const customer = await this.prisma.user.create({ data: { phone: '+254700111222', role: Role.CUSTOMER, email: 'customer@test.com' } });
       const rider = await this.prisma.user.create({ data: { phone: '+254700333444', role: Role.RIDER, isOnline: true, email: 'rider@test.com' } });
 
-      // 3. Create Trips
+      // 4. Create Trips
       for (let i = 0; i < 3; i++) {
         await this.prisma.trip.create({ data: { customerId: customer.id, riderId: rider.id, pickupLat: -1.29, pickupLng: 36.82, dropoffLat: -1.30, dropoffLng: 36.83, estimatedFare: 500, finalFare: 450, status: TripStatus.COMPLETED, rating: 5 } });
       }
@@ -78,4 +85,3 @@ export class AppController {
     }
   }
 }
-
