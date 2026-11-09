@@ -1,6 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { PrismaService } from './prisma/prisma.service';
+import { Role, TripStatus } from '@prisma/client';
 
 @Controller()
 export class AppController {
@@ -17,24 +18,58 @@ export class AppController {
   @Get('api/admin/dashboard')
   async getDashboardStats() {
     try {
-      // Fetch real counts from your database using Prisma
-      // (Note: Change 'rider', 'customer', 'trip' to match your actual schema models)
+      // 1. Fetch real counts from the User model based on Role
+      const activeRiders = await this.prisma.user.count({ 
+        where: { role: Role.RIDER, isOnline: true } 
+      }).catch(() => 0);
       
-      const activeRiders = await this.prisma.rider.count({ where: { status: 'ACTIVE' } }).catch(() => 0);
-      const activeCustomers = await this.prisma.customer.count({ where: { status: 'ACTIVE' } }).catch(() => 0);
+      const activeCustomers = await this.prisma.user.count({ 
+        where: { role: Role.CUSTOMER } 
+      }).catch(() => 0);
       
-      const completedTrips = await this.prisma.trip.count({ where: { status: 'COMPLETED' } }).catch(() => 0);
-      const inProgressTrips = await this.prisma.trip.count({ where: { status: 'IN_PROGRESS' } }).catch(() => 0);
-      const pendingTrips = await this.prisma.trip.count({ where: { status: 'PENDING' } }).catch(() => 0);
-      const cancelledTrips = await this.prisma.trip.count({ where: { status: 'CANCELLED' } }).catch(() => 0);
+      // 2. Fetch trips for the pie chart using the correct TripStatus Enums
+      const completedTrips = await this.prisma.trip.count({ 
+        where: { status: TripStatus.COMPLETED } 
+      }).catch(() => 0);
+      
+      const inProgressTrips = await this.prisma.trip.count({ 
+        where: { status: { in: [TripStatus.IN_PROGRESS, TripStatus.IN_PROGRESS_DEST, TripStatus.ACCEPTED, TripStatus.ARRIVED_AT_PICKUP] } } 
+      }).catch(() => 0);
+      
+      const pendingTrips = await this.prisma.trip.count({ 
+        where: { status: TripStatus.REQUESTED } // 'REQUESTED' is your equivalent of Pending
+      }).catch(() => 0);
+      
+      const cancelledTrips = await this.prisma.trip.count({ 
+        where: { status: TripStatus.CANCELLED } 
+      }).catch(() => 0);
 
+      // 3. Calculate today's revenue using the correct 'finalFare' field
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Start of today
+
+      const revenueData = await this.prisma.trip.aggregate({
+        _sum: { finalFare: true },
+        where: { 
+          status: TripStatus.COMPLETED,
+          createdAt: { gte: today }
+        }
+      }).catch(() => ({ _sum: { finalFare: 0 } }));
+
+      // 4. Calculate average rating from completed trips
+      const ratingData = await this.prisma.trip.aggregate({
+        _avg: { rating: true },
+        where: { status: TripStatus.COMPLETED, rating: { not: null } }
+      }).catch(() => ({ _avg: { rating: 0 } }));
+
+      // 5. Return the real data
       return {
         stats: {
           totalTrips: completedTrips + inProgressTrips + pendingTrips,
           activeRiders: activeRiders,
           activeCustomers: activeCustomers,
-          totalRevenue: 0, // You can sum this from a payment table later
-          averageRating: 0 // You can average this from a review table later
+          totalRevenue: revenueData._sum.finalFare || 0,
+          averageRating: ratingData._avg.rating ? Number(ratingData._avg.rating.toFixed(1)) : 0
         },
         tripStatus: {
           completed: completedTrips,
@@ -42,16 +77,11 @@ export class AppController {
           pending: pendingTrips,
           cancelled: cancelledTrips
         },
-        revenueChart: [
-          // You'll want to run a groupBy query here to get real revenue
-          { date: "Apr 19", amount: 0 },
-          { date: "Apr 20", amount: 0 },
-          { date: "Apr 21", amount: 0 }
-        ]
+        revenueChart: [] // We will build this later
       };
     } catch (error) {
-      console.error("Database Error:", error);
-      // If the DB fails, return 0s so the frontend doesn't crash
+      console.error("Database error:", error);
+      // Fallback to zeros so the frontend doesn't crash
       return {
         stats: { totalTrips: 0, activeRiders: 0, activeCustomers: 0, totalRevenue: 0, averageRating: 0 },
         tripStatus: { completed: 0, inProgress: 0, pending: 0, cancelled: 0 },
