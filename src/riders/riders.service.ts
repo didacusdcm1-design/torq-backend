@@ -6,10 +6,9 @@ export class RidersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findPending() {
-    // Find riders where rejectionReason is null (meaning they are pending or approved)
+    // Removed the 'role: RIDER' filter so we catch everyone with a profile
     const users = await this.prisma.user.findMany({
       where: { 
-        role: 'RIDER',
         riderProfile: {
           isNot: null,
         }
@@ -26,7 +25,6 @@ export class RidersService {
   async updateStatus(id: string, status: string) {
     let rejectionReason = null;
     
-    // If rejected, we save a reason. If approved, we clear the reason.
     if (status === 'REJECTED') {
       rejectionReason = 'Rejected by Admin';
     }
