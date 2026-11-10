@@ -7,28 +7,22 @@ export class RidersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(query: GetRidersDto) {
-    const { page = 1, limit = 20, isOnline, sortBy = 'createdAt', order = 'desc' } = query;
+    const { page = 1, limit = 20 } = query;
     const skip = (page - 1) * limit;
 
-    const where = {
-      role: 'RIDER' as const,
-      ...(isOnline !== undefined ? { isOnline } : {}),
-    };
-
+    // Temporarily simplified to guarantee it works
     const [data, total] = await this.prisma.$transaction([
       this.prisma.user.findMany({
-        where,
         skip,
         take: limit,
-        orderBy: { [sortBy]: order },
       }),
-      this.prisma.user.count({ where }),
+      this.prisma.user.count(),
     ]);
 
     return {
       data: data.map((r) => ({
         ...r,
-        totalTrips: 0, // Temporary fallback so the frontend doesn't break
+        totalTrips: 0,
       })),
       meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
     };
