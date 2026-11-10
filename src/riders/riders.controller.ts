@@ -1,4 +1,4 @@
-﻿import { Controller, Get, Patch, Param, Body } from '@nestjs/common';
+﻿import { Controller, Get, Patch, Param, Body, Post } from '@nestjs/common';
 import { RidersService } from './riders.service';
 
 @Controller('riders')
@@ -11,10 +11,13 @@ export class RidersController {
   }
 
   @Patch(':id/status')
-  updateStatus(
-    @Param('id') id: string,
-    @Body() body: { status: string },
-  ) {
+  updateStatus(@Param('id') id: string, @Body() body: { status: string }) {
     return this.ridersService.updateStatus(id, body.status);
+  }
+
+  // ADD THIS: Endpoint for the mobile app
+  @Post('onboard')
+  onboard(@Body() body: any) {
+    return this.ridersService.onboardRider(body);
   }
 }
