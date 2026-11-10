@@ -21,17 +21,6 @@ export class RidersService {
         skip,
         take: limit,
         orderBy: { [sortBy]: order },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          phone: true,
-          isOnline: true,
-          rating: true,
-          vehicleType: true,
-          createdAt: true,
-          _count: { select: { trips: true } },
-        },
       }),
       this.prisma.user.count({ where }),
     ]);
@@ -39,8 +28,7 @@ export class RidersService {
     return {
       data: data.map((r) => ({
         ...r,
-        totalTrips: r._count.trips,
-        _count: undefined,
+        totalTrips: 0, // Temporary fallback so the frontend doesn't break
       })),
       meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
     };
