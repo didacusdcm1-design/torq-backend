@@ -1,4 +1,4 @@
-import { NestFactory } from '@nestjs/core';
+﻿import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
@@ -19,3 +19,4 @@ async function bootstrap() {
   await app.listen(process.env.PORT || 3000);
 }
 bootstrap();// Force rebuild 10/30/2026 14:45:58
+
