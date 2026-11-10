@@ -64,9 +64,10 @@ export class RidersService {
       });
 
       return { success: true, message: 'Application submitted successfully', profile };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Onboarding Error:', error);
       throw new BadRequestException('Failed to save rider application: ' + error.message);
     }
   }
 }
+
