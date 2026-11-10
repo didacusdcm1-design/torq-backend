@@ -5,26 +5,30 @@ import { PrismaService } from '../prisma/prisma.service';
 export class RidersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
-    // Filter ONLY riders
+  async findPending() {
+    // Fetch users who have a riderProfile and haven't been approved yet
+    // Note: Assuming your schema has a `status` field in riderProfile
     const users = await this.prisma.user.findMany({
-      where: { role: 'RIDER' },
+      where: { 
+        role: 'RIDER',
+        riderProfile: {
+          isNot: null
+        }
+      },
+      include: {
+        riderProfile: true,
+      },
       orderBy: { createdAt: 'desc' },
     });
 
-    return {
-      data: users.map((u) => ({
-        id: u.id,
-        name: u.email ? u.email.split('@')[0] : 'Rider',
-        email: u.email,
-        phone: u.phone,
-        isOnline: u.isOnline,
-        createdAt: u.createdAt,
-        rating: 4.8, 
-        vehicleType: 'boda',
-        totalTrips: 0, 
-      })),
-      meta: { total: users.length, page: 1, limit: 20, totalPages: 1 },
-    };
+    return { data: users };
+  }
+
+  async updateStatus(id: string, status: string) {
+    // Update the RiderProfile status
+    return this.prisma.riderProfile.update({
+      where: { userId: id },
+      data: { status: status as any },
+    });
   }
 }
