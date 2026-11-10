@@ -1,6 +1,5 @@
 ﻿import { Controller, Get, Patch, Param, Body } from '@nestjs/common';
 import { RidersService } from './riders.service';
-import { UpdateRiderStatusDto } from './dto/update-rider-status.dto';
 
 @Controller('riders')
 export class RidersController {
@@ -14,8 +13,8 @@ export class RidersController {
   @Patch(':id/status')
   updateStatus(
     @Param('id') id: string,
-    @Body() updateRiderStatusDto: UpdateRiderStatusDto,
+    @Body() body: { status: string },
   ) {
-    return this.ridersService.updateStatus(id, updateRiderStatusDto.status);
+    return this.ridersService.updateStatus(id, body.status);
   }
 }
